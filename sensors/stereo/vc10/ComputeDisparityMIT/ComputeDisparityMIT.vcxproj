@@ -39,6 +39,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(OCVDIR)/include;$(OCVDIR)/include/opencv;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OCVDIR)/x86/vc11/lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -53,6 +55,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opencv_core248d.lib;opencv_highgui248d.lib;opencv_imgproc248d.lib;opencv_calib3d248d.lib;opencv_features2d248d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -73,9 +76,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ComputeDisparityMIT.cpp" />
+    <ClCompile Include="opencv-stereo-util.cpp" />
     <ClCompile Include="pushbroom-stereo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="opencv-stereo-util.hpp" />
     <ClInclude Include="pushbroom-stereo.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
