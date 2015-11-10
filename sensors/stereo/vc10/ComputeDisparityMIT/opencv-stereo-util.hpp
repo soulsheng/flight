@@ -13,17 +13,8 @@
 #include "opencv2/legacy/legacy.hpp"
 #include "opencv2/opencv.hpp"
 
-#include <sys/time.h>
-
-#include <boost/filesystem.hpp>
 
 #include <string>
-#include <glib.h> // for configuration files
-
-#include "lcmtypes/bot_core_image_t.h" // from libbot for images over LCM
-
-#include "../../LCM/lcmt_stereo.h"
-#include "../../utils/utils/RealtimeUtils.hpp"
 
 
 
@@ -32,14 +23,8 @@ extern "C"
     #include <stdio.h>
     #include <stdint.h>
     #include <stdlib.h>
-    #include <inttypes.h>
+    //#include <inttypes.h>
 
-    #include <dc1394/dc1394.h>
-
-    #include <camera.h>
-    #include <utils.h>
-
-    #include "../../externals/jpeg-utils/jpeg-utils.h"
 }
 
 
@@ -105,26 +90,8 @@ struct OpenCvStereoCalibration
     Mat P2;
 };
 
-Mat GetFrameFormat7(dc1394camera_t *camera);
-
-void FlushCameraBuffer(dc1394camera_t *camera);
-
-int64_t getTimestampNow();
-
-bool ParseConfigFile(string configFile, OpenCvStereoConfig *configStruct);
-
 bool LoadCalibration(string calibrationDir, OpenCvStereoCalibration *stereoCalibration);
 
-void StopCapture(dc1394_t *dcContext, dc1394camera_t *camera);
-
-
-void InitBrightnessSettings(dc1394camera_t *camera1, dc1394camera_t *camera2, bool enable_gamma = false);
-
-void MatchBrightnessSettings(dc1394camera_t *camera1, dc1394camera_t *camera2, bool complete_set = false, int force_brightness = -1, int force_exposure = -1);
-
-void SendImageOverLcm(lcm_t* lcm, string channel, Mat image, int compression_quality = 80);
-
-void Get3DPointsFromStereoMsg(const lcmt_stereo *msg, vector<Point3f> *points_out);
 
 void Draw3DPointsOnImage(Mat camera_image, vector<Point3f> *points_list_in, Mat cam_mat_m, Mat cam_mat_d, Mat cam_mat_r, Scalar outline_color = 128, Scalar inside_color = 255, Point2d box_top = Point2d(-1, -1), Point2d box_bottom = Point2d(-1, -1), vector<int> *points_in_box = NULL, float min_z = 0, float max_z = 0, int box_size = 4);
 

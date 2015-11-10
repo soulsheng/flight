@@ -6,7 +6,7 @@
  */
 
 #include "pushbroom-stereo.hpp"
-#include <pthread.h>
+//#include <pthread.h>
 
 // if USE_SAFTEY_CHECKS is 1, GetSAD will try to make sure
 // that it will do the right thing even if you ask it for pixel
@@ -23,14 +23,14 @@
 #define NUMERIC_CONST 333 // just a constant that we multiply the score by to make
                           // all the parameters in a nice integer range
 
-PushbroomStereoThreadStarter thread_starter[NUM_THREADS+1];
+//PushbroomStereoThreadStarter thread_starter[NUM_THREADS+1];
 
 
 PushbroomStereo::PushbroomStereo() {
     // init worker threads
 
 
-
+#if 0
     for (int i = 0; i < NUM_THREADS; i++) {
         // start all the worker threads
 
@@ -50,8 +50,9 @@ PushbroomStereo::PushbroomStereo() {
         pthread_create(&(worker_pool_[i]), NULL, WorkerThread, &(thread_starter[i]));
 
     }
+#endif
 }
-
+#if 0
 void* PushbroomStereo::WorkerThread(void *x) {
 
     PushbroomStereoThreadStarter *statet = (PushbroomStereoThreadStarter*) x;
@@ -123,6 +124,7 @@ void* PushbroomStereo::WorkerThread(void *x) {
 
     return NULL;
 }
+#endif
 
 /**
  * Runs the fast, single-disparity stereo algorithm.  Returns a
@@ -177,14 +179,15 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 
         remap_thread_states_[i].sub_remapped_right_image = remapped_right.rowRange(start, end);
 
-        StartWorkerThread(i, REMAP);
+        //StartWorkerThread(i, REMAP);
+		RunRemapping( remap_thread_states_ + i );
 
     }
     //cout << "[main] all remap threads started" << endl;
 
 
     // wait for all remapping threads to finish
-    SyncWorkerThreads();
+    //SyncWorkerThreads();
 
     //cout << "[main] all remap threads finished" << endl;
 
@@ -209,10 +212,12 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
         interest_op_states_[i].row_end = end;
 
 
-        StartWorkerThread(i, INTEREST_OP);
+        //StartWorkerThread(i, INTEREST_OP);
+		RunInterestOp( interest_op_states_ + i );
+
     }
 
-    SyncWorkerThreads();
+    //SyncWorkerThreads();
 
     // now we have fully remapped both images
     //imshow("Left Block", remapped_right);
@@ -277,11 +282,13 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 
 
         // fire the worker thread
-        StartWorkerThread(i, STEREO);
+        //StartWorkerThread(i, STEREO);
+		RunStereoPushbroomStereo( thread_states_ + i );
+
     }
 
     // wait for all the threads to come back
-    SyncWorkerThreads();
+    //SyncWorkerThreads();
 
     //cout << "[main] got all stereo" << endl;
 
@@ -309,7 +316,7 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
     }
 
 }
-
+#if 0
 void PushbroomStereo::StartWorkerThread(int i, ThreadWorkType work_type) {
 
     work_type_[i] = work_type;
@@ -343,7 +350,7 @@ void PushbroomStereo::SyncWorkerThreads() {
     }
     //cout << "[main] leaving sync workers" << endl;
 }
-
+#endif
 /**
  * Function (for running in a thread) that remaps images
  *
@@ -464,7 +471,7 @@ void PushbroomStereo::RunStereoPushbroomStereo(PushbroomStereoStateThreaded *sta
         double intpart;
 
         float fractpart = modf(state.random_results , &intpart);
-        hitCounter = round(intpart);
+        hitCounter = int(intpart);
 
         // determine if this is a time we'll use that last point
         std::random_device rd;

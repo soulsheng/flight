@@ -74,10 +74,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\opencv-stereo-util.hpp" />
     <ClInclude Include="..\..\pushbroom-stereo-main.hpp" />
     <ClInclude Include="..\..\pushbroom-stereo.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\opencv-stereo-util.cpp" />
     <ClCompile Include="..\..\pushbroom-stereo-main.cpp" />
     <ClCompile Include="..\..\pushbroom-stereo.cpp" />
   </ItemGroup>

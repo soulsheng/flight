@@ -9,6 +9,7 @@ using namespace cv;
 #include "opencv-stereo-util.hpp"
 
 #define ConfigFile	"aaazzz.conf"
+#define CalibrationDir	"..\\..\\calib-02-20-2014"
 
 
 int main( )
@@ -22,19 +23,10 @@ int main( )
 	cv::vector<Point3i> pointVector2d_inf; // for display
 
 
-	// parse the config file
-	OpenCvStereoConfig stereoConfig;
-
-	if (ParseConfigFile(ConfigFile, &stereoConfig) != true)
-	{
-		fprintf(stderr, "Failed to parse configuration file, quitting.\n");
-		return -1;
-	}
-
 	// load calibration
 	OpenCvStereoCalibration stereoCalibration;
 
-	if (LoadCalibration(stereoConfig.calibrationDir, &stereoCalibration) != true)
+	if (LoadCalibration(CalibrationDir, &stereoCalibration) != true)
 	{
 		cerr << "Error: failed to read calibration files. Quitting." << endl;
 		return -1;
@@ -51,11 +43,11 @@ int main( )
 	PushbroomStereoState state; // HACK
 
 	// sensors\stereo\aaazzz.conf 
-	state.disparity = stereoConfig.disparity;
-	state.zero_dist_disparity = stereoConfig.infiniteDisparity;
-	state.sobelLimit = stereoConfig.interestOperatorLimit;
-	state.horizontalInvarianceMultiplier = stereoConfig.horizontalInvarianceMultiplier;
-	state.blockSize = stereoConfig.blockSize;
+	state.disparity = -105;
+	state.zero_dist_disparity = -95;
+	state.sobelLimit = 860;
+	state.horizontalInvarianceMultiplier = 0.5;
+	state.blockSize = 5;
 	state.random_results = random_results;
 	state.check_horizontal_invariance = true;
 
@@ -65,14 +57,14 @@ int main( )
 			"or small (%d).  Expect trouble.\n", state.blockSize);
 	}
 
-	state.sadThreshold = stereoConfig.sadThreshold;
+	state.sadThreshold = 54;
 
 	state.mapxL = stereoCalibration.mx1fp;
 	state.mapxR = stereoCalibration.mx2fp;
 	state.Q = stereoCalibration.qMat;
 	state.show_display = show_display;
 
-	state.lastValidPixelRow = stereoConfig.lastValidPixelRow;
+	state.lastValidPixelRow =  205;
 
 	PushbroomStereo pushbroom_stereo;
 

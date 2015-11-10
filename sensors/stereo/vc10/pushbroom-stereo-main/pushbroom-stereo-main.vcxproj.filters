@@ -21,12 +21,18 @@
     <ClInclude Include="..\..\pushbroom-stereo.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\opencv-stereo-util.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\pushbroom-stereo-main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\pushbroom-stereo.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\opencv-stereo-util.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,14 +11,10 @@
 #include "opencv2/opencv.hpp"
 #include <cv.h>
 #include <iostream>
-#include <mutex>
-#include <condition_variable>
+
 #include <math.h>
 #include <random> // for debug random generator
 
-#ifdef USE_NEON
-#include <arm_neon.h>
-#endif // USE_NEON
 
 #define NUM_THREADS 8
 //#define NUM_REMAP_THREADS 8
@@ -109,6 +105,8 @@ class PushbroomStereo {
 
         bool CheckHorizontalInvariance(Mat leftImage, Mat rightImage, Mat sobelL, Mat sobelR, int pxX, int pxY, PushbroomStereoState state);
 
+		int RoundUp(int numToRound, int multiple);
+#if 0
         void StartWorkerThread(int i, ThreadWorkType work_type);
         void SyncWorkerThreads();
 
@@ -116,23 +114,24 @@ class PushbroomStereo {
         // deal with the implicit 'this' variable
         static void* WorkerThread(void *x);
 
-        int RoundUp(int numToRound, int multiple);
-
         pthread_t worker_pool_[NUM_THREADS+1];
         ThreadWorkType work_type_[NUM_THREADS+1];
 
         bool has_new_data_[NUM_THREADS+1];
+#endif
 
         PushbroomStereoStateThreaded thread_states_[NUM_THREADS+1];
         RemapThreadState remap_thread_states_[NUM_THREADS+1];
         InterestOpState interest_op_states_[NUM_THREADS+1];
 
+#if 0
         mutex data_mutexes_[NUM_THREADS+1];
 
         condition_variable cv_new_data_[NUM_THREADS+1];
         condition_variable cv_thread_finish_[NUM_THREADS+1];
 
         unique_lock<mutex> lockers_[NUM_THREADS+1];
+#endif
 
 
     public:
@@ -140,6 +139,8 @@ class PushbroomStereo {
 
         void ProcessImages(InputArray _leftImage, InputArray _rightImage, cv::vector<Point3f> *pointVector3d, cv::vector<uchar> *pointColors, cv::vector<Point3i> *pointVector2d, PushbroomStereoState state);
 
+		int GetSAD(Mat leftImage, Mat rightImage, Mat laplacianL, Mat laplacianR, int pxX, int pxY, PushbroomStereoState state, int *left_interest = NULL, int *right_interest = NULL, int *raw_sad = NULL);
+#if 0
         ThreadWorkType GetWorkType(int i) { return work_type_[i]; }
 
         PushbroomStereoStateThreaded* GetThreadedState(int i) {
@@ -148,8 +149,6 @@ class PushbroomStereo {
 
         bool GetHasNewData(int i) { return has_new_data_[i]; }
         void SetHasNewData(int i, bool val) { has_new_data_[i] = val; }
-
-        int GetSAD(Mat leftImage, Mat rightImage, Mat laplacianL, Mat laplacianR, int pxX, int pxY, PushbroomStereoState state, int *left_interest = NULL, int *right_interest = NULL, int *raw_sad = NULL);
 
         RemapThreadState* GetRemapState(int i) { return &(remap_thread_states_[i]); }
 
@@ -166,6 +165,9 @@ struct PushbroomStereoThreadStarter {
 
     PushbroomStereo *parent;
 };
+#else
+};
+#endif
 
 
 #endif
