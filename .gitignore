@@ -113,3 +113,4 @@ ui/GoForFlight/GoForFlight.layout
 /sensors/stereo/vc10/pushbroom-stereo-main/Debug/*.log
 /sensors/stereo/vc10/ComputeDisparityMIT/*.jpg
 /sensors/stereo/vc10/pushbroom-stereo-main/Debug
+/sensors/stereo/vc10/ComputeDisparityMIT/*.suo

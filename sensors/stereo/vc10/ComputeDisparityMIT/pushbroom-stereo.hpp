@@ -16,7 +16,7 @@
 #include <random> // for debug random generator
 
 
-#define NUM_THREADS 8
+#define NUM_THREADS 1
 //#define NUM_REMAP_THREADS 8
 
 using namespace cv;

@@ -14,8 +14,8 @@ using namespace cv;
 
 int main( )
 {
-	Mat matL = imread("11_Ls.jpg");
-	Mat matR = imread("11_Rs.jpg");
+	Mat matL = imread("11_Ls.jpg", CV_8UC1);
+	Mat matR = imread("11_Rs.jpg", CV_8UC1);
 
 	cv::vector<Point3f> pointVector3d;
 	cv::vector<uchar> pointColors;
