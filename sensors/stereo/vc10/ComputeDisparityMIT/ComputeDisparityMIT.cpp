@@ -11,18 +11,8 @@ using namespace cv;
 #define ConfigFile	"aaazzz.conf"
 #define CalibrationDir	"..\\..\\calib-02-20-2014"
 
-
-int main( )
+int configCD(PushbroomStereoState& state) 
 {
-	Mat matL = imread("11_Ls.jpg", CV_8UC1);
-	Mat matR = imread("11_Rs.jpg", CV_8UC1);
-
-	cv::vector<Point3f> pointVector3d;
-	cv::vector<uchar> pointColors;
-	cv::vector<Point3i> pointVector2d; // for display
-	cv::vector<Point3i> pointVector2d_inf; // for display
-
-
 	// load calibration
 	OpenCvStereoCalibration stereoCalibration;
 
@@ -39,8 +29,6 @@ int main( )
 
 	float random_results = -1.0;
 	bool show_display = false;
-
-	PushbroomStereoState state; // HACK
 
 	// sensors\stereo\aaazzz.conf 
 	state.disparity = -105;
@@ -66,8 +54,25 @@ int main( )
 
 	state.lastValidPixelRow =  205;
 
-	PushbroomStereo pushbroom_stereo;
+	return 0;
+}
 
+
+int main( )
+{
+	Mat matL = imread("11_Ls.jpg", CV_8UC1);
+	Mat matR = imread("11_Rs.jpg", CV_8UC1);
+
+	cv::vector<Point3f> pointVector3d;
+	cv::vector<uchar> pointColors;
+	cv::vector<Point3i> pointVector2d; // for display
+	cv::vector<Point3i> pointVector2d_inf; // for display
+
+
+	PushbroomStereoState state; // HACK
+	return configCD(state);
+
+	PushbroomStereo pushbroom_stereo;
 	pushbroom_stereo.ProcessImages(matL, matR, &pointVector3d, &pointColors, &pointVector2d, state);
 
 	return 0;
