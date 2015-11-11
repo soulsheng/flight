@@ -107,8 +107,6 @@ int main( )
 #endif
 
 	// global for where we are drawing a line on the image
-	int lineLeftImgPosition = -1;
-	int lineLeftImgPositionY = -1;
 	bool visualize_stereo_hits = false;
 	bool show_unrectified = false;
 
@@ -122,15 +120,6 @@ int main( )
 			rectangle(matDisp, Point(x2+1,y2+1), Point(x2+state.blockSize-1, y2-1+state.blockSize), 255);
 
 		}
-
-		// draw pixel blocks
-		if (lineLeftImgPosition >= 0 && lineLeftImgPositionY > 1) {
-			DisplayPixelBlocks(remapL, remapR, lineLeftImgPosition - state.blockSize/2, lineLeftImgPositionY - state.blockSize/2, state, &pushbroom_stereo);
-		}
-
-		// draw a line for the user to show disparity
-		DrawLines(remapL, remapR, matDisp, lineLeftImgPosition, lineLeftImgPositionY, state.disparity, state.zero_dist_disparity);
-
 
 		if (visualize_stereo_hits == true) {
 
