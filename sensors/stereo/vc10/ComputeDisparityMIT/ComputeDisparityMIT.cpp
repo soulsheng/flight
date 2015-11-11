@@ -83,7 +83,11 @@ int main( )
 
 	// output
 	Mat matDisp, remapL, remapR;
-
+#if 1
+	remapL = matL;
+	remapR = matR;
+	remapL.copyTo(matDisp);
+#else
 	if (state.show_display) {
 		// we remap again here because we're just in display
 		Mat remapLtemp(matL.rows, matL.cols, matL.depth());
@@ -100,12 +104,13 @@ int main( )
 		//process LCM until there are no more messages
 		// this allows us to drop frames if we are behind
 	} // end show_display
+#endif
 
 	// global for where we are drawing a line on the image
 	int lineLeftImgPosition = -1;
 	int lineLeftImgPositionY = -1;
-	bool visualize_stereo_hits = true;
-	bool show_unrectified = true;
+	bool visualize_stereo_hits = false;
+	bool show_unrectified = false;
 
 	if (state.show_display) {
 
@@ -139,8 +144,8 @@ int main( )
 
 	if (show_unrectified == false) {
 
-		imshow("Input", remapL);
-		imshow("Input2", remapR);
+		imshow("matDisp", matDisp);
+
 	} else {
 		imshow("matL", matL);
 	}
