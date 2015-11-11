@@ -28,7 +28,7 @@ int configCD(OpenCvStereoCalibration& stereoCalibration, PushbroomStereoState& s
 	std::cout << "computed disparity is = " << disparity_tester << ", inf disparity = " << inf_disparity_tester << std::endl;
 
 	float random_results = -1.0;
-	bool show_display = false;
+	bool show_display = true;
 
 	// sensors\stereo\aaazzz.conf 
 	state.disparity = -105;
@@ -83,8 +83,8 @@ int main( )
 
 	// output
 	Mat matDisp, remapL, remapR;
-	bool show_display = true;
-	if (show_display) {
+
+	if (state.show_display) {
 		// we remap again here because we're just in display
 		Mat remapLtemp(matL.rows, matL.cols, matL.depth());
 		Mat remapRtemp(matR.rows, matR.cols, matR.depth());
@@ -105,9 +105,9 @@ int main( )
 	int lineLeftImgPosition = -1;
 	int lineLeftImgPositionY = -1;
 	bool visualize_stereo_hits = true;
-	bool show_unrectified = false;
+	bool show_unrectified = true;
 
-	if (show_display) {
+	if (state.show_display) {
 
 		for (unsigned int i=0;i<pointVector2d.size();i++) {
 			int x2 = pointVector2d[i].x;
@@ -142,8 +142,7 @@ int main( )
 		imshow("Input", remapL);
 		imshow("Input2", remapR);
 	} else {
-		imshow("Input", matL);
-		imshow("Input2", matR);
+		imshow("matL", matL);
 	}
 
 	waitKey();
