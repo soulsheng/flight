@@ -8,6 +8,8 @@ using namespace cv;
 #include "pushbroom-stereo.hpp"
 #include "opencv-stereo-util.hpp"
 
+#include "helper_timer.h"
+
 #define ConfigFile	"aaazzz.conf"
 #define CalibrationDir	"..\\..\\calib-02-20-2014"
 
@@ -79,7 +81,18 @@ int main( )
 	configCD( stereoCalibration, state);
 
 	PushbroomStereo pushbroom_stereo;
+
+
+	StopWatchInterface	*timer;
+	sdkCreateTimer( &timer );
+
+	sdkResetTimer( &timer );
+	sdkStartTimer( &timer );
+
 	pushbroom_stereo.ProcessImages(matL, matR, &pointVector3d, &pointColors, &pointVector2d, state);
+
+	sdkStopTimer( &timer );
+	printf("timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
 	// output
 	Mat matDisp, remapL, remapR;
