@@ -7,6 +7,7 @@
 
 #include "pushbroom-stereo.hpp"
 //#include <pthread.h>
+#include "helper_timer.h"
 
 // if USE_SAFTEY_CHECKS is 1, GetSAD will try to make sure
 // that it will do the right thing even if you ask it for pixel
@@ -76,6 +77,13 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
     // split things up so we can parallelize
     int rows = leftImage.rows;
 
+	
+	StopWatchInterface	*timer;
+	sdkCreateTimer( &timer );
+
+	sdkResetTimer( &timer );
+	sdkStartTimer( &timer );
+
     // first parallelize remaping
 
     // we split these arrays up and send them into each
@@ -119,7 +127,13 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 
     //cout << "[main] all remap threads finished" << endl;
 #endif
+	
+	sdkStopTimer( &timer );
+	printf("remap timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
+	
+	sdkResetTimer( &timer );
+	sdkStartTimer( &timer );
 
     Mat laplacian_left(remapped_left.rows, remapped_left.cols, remapped_left.depth());
     Mat laplacian_right(remapped_right.rows, remapped_right.cols, remapped_right.depth());
@@ -159,6 +173,12 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 
     //cout << "[main] imshow2 ok" << endl;
 #endif
+	
+	sdkStopTimer( &timer );
+	printf("laplacian timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+
+	sdkResetTimer( &timer );
+	sdkStartTimer( &timer );
 
     cv::vector<Point3f> pointVector3dArray[NUM_THREADS+1];
     cv::vector<Point3i> pointVector2dArray[NUM_THREADS+1];
@@ -236,6 +256,10 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 
     //cout << "[main] got all stereo" << endl;
 #endif
+
+		
+	sdkStopTimer( &timer );
+	printf("RunStereo timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
     int numPoints = 0;
     // compute the required size of our return vector
