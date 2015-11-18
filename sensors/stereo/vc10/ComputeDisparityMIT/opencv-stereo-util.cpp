@@ -17,6 +17,128 @@
  * @retval true on success, false on falure.
  *
  */
+#ifdef CALIBEXE
+bool readCalibrationFiles(CalibParams &params)
+{
+	Mat &mx1 = params.mx1;
+	Mat &my1 = params.my1;
+	Mat &mx2 = params.mx2;
+	Mat &my2 = params.my2;
+
+	// Load calibration file 
+	FileStorage fs;
+	fs.open("calib_para.yml",FileStorage::READ);
+	if (fs.isOpened())
+	{
+		Mat validroi1,validroi2;
+		validroi1.create(1,4,CV_32S);
+		validroi2.create(1,4,CV_32S);
+		fs["MX1"] >> mx1;
+		fs["MX2"] >> mx2;
+		fs["MY1"] >> my1;
+		fs["MY2"] >> my2;
+
+		fs.release();
+
+		fs.open("validRoi.yml",FileStorage::READ);
+		if (fs.isOpened())
+		{
+			fs["validRoi1"] >> validroi1;
+			fs["validRoi2"] >> validroi2;
+		}
+		params.image_chop_up = MAX(validroi1.at<int>(0,1),validroi2.at<int>(0,1));
+		params.image_chop_down = MAX(validroi1.at<int>(0,3),validroi2.at<int>(0,3));
+		params.image_chop_left = MAX(validroi1.at<int>(0,0),validroi2.at<int>(0,0));
+
+		//params.image_chop_left = MAX(params.image_chop_left, MAX_DISP);
+
+		params.image_chop_right = MAX(validroi1.at<int>(0,2),validroi2.at<int>(0,2));
+
+		//Mat P1, P2, Q, R_left;
+		fs.open("extrinsics.yml",FileStorage::READ);
+		fs["P1"] >> params.P1;
+		fs["P2"] >> params.P2;
+		fs["Q"] >> params.Q;
+		//fs["R1"] >> R_left;
+		fs.release();
+	//	Mat R1, T1, R2, T2;
+		fs.open("rt_vectors.yml", FileStorage::READ);
+		if (fs.isOpened())
+		{
+			fs["R1"] >> params.R1;
+			fs["T1"] >> params.T1;
+			fs["R2"] >> params.R2;
+			fs["T2"] >> params.T2;
+		}
+		fs.release();
+
+		fs.open("intrinsics.yml", FileStorage::READ);
+		if (fs.isOpened())
+		{
+			fs["M1"] >> params.M1;
+			fs["D1"] >> params.D1;
+			fs["M2"] >> params.M2;
+			fs["D2"] >> params.D2;
+		}
+		fs.release();
+
+
+		return true;
+	}
+	else
+	{
+		//cout<<"NO Calibration File Found! "<<endl;
+		fs.release();
+		return false;
+	}
+}
+#endif
+bool TransCalibration(CalibParams &params, OpenCvStereoCalibration *stereoCalibration)
+{
+    Mat qMat, mx1Mat, my1Mat, mx2Mat, my2Mat, m1Mat, d1Mat, r1Mat, p1Mat, r2Mat, p2Mat, m2Mat, d2Mat;
+
+
+    qMat = Mat(params.Q);
+	mx1Mat = Mat(params.mx1);
+	my1Mat = Mat(params.my1);
+	mx2Mat = Mat(params.mx2);
+	my2Mat = Mat(params.my2);
+
+	m1Mat = Mat(params.M1);
+	d1Mat = Mat(params.D1);
+	r1Mat = Mat(params.R1);
+	p1Mat = Mat(params.P1);
+
+	m2Mat = Mat(params.M2);
+	d2Mat = Mat(params.D2);
+	r2Mat = Mat(params.R2);
+	p2Mat = Mat(params.P2);
+
+    Mat mx1fp, empty1, mx2fp, empty2;
+
+    // this will convert to a fixed-point notation
+    convertMaps(mx1Mat, my1Mat, mx1fp, empty1, CV_16SC2, true);
+    convertMaps(mx2Mat, my2Mat, mx2fp, empty2, CV_16SC2, true);
+
+    stereoCalibration->qMat = qMat;
+    stereoCalibration->mx1fp = mx1fp;
+    stereoCalibration->mx2fp = mx2fp;
+
+    stereoCalibration->M1 = m1Mat;
+    stereoCalibration->D1 = d1Mat;
+    stereoCalibration->R1 = r1Mat;
+    stereoCalibration->P1 = p1Mat;
+
+    stereoCalibration->M2 = m2Mat;
+    stereoCalibration->D2 = d2Mat;
+    stereoCalibration->R2 = r2Mat;
+    stereoCalibration->P2 = p2Mat;
+
+
+    return true;
+}
+
+
 bool LoadCalibration(string calibrationDir, OpenCvStereoCalibration *stereoCalibration)
 {
     Mat qMat, mx1Mat, my1Mat, mx2Mat, my2Mat, m1Mat, d1Mat, r1Mat, p1Mat, r2Mat, p2Mat, m2Mat, d2Mat;

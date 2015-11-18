@@ -15,26 +15,49 @@ using namespace cv;
 
 int configCD(OpenCvStereoCalibration& stereoCalibration, PushbroomStereoState& state) 
 {
-	// load calibration
+	
+	
+    // load calibration from calibexe
+	CalibParams calibparam;
+	if( !readCalibrationFiles(calibparam) )
+	{
+		printf("Cannot find calibration file!\n");
+		//EtronDI_CloseDevice(m_hEtronDI);
+		return 0 ;
+	}
 	//OpenCvStereoCalibration stereoCalibration;
-
+	
+		if (TransCalibration(calibparam, &stereoCalibration) != true)
+	{
+		cerr << "Error: failed to read calibration files. Quitting." << endl;
+		return -1;
+	}
+/*
 	if (LoadCalibration(CalibrationDir, &stereoCalibration) != true)
 	{
 		cerr << "Error: failed to read calibration files. Quitting." << endl;
 		return -1;
 	}
+	*/
+	
+
+
+
 
 	int inf_disparity_tester, disparity_tester;
-	disparity_tester = GetDisparityForDistance(10, stereoCalibration, &inf_disparity_tester);
+	//para of Distance
+	disparity_tester = GetDisparityForDistance(3000, stereoCalibration, &inf_disparity_tester);
 
-	std::cout << "computed disparity is = " << disparity_tester << ", inf disparity = " << inf_disparity_tester << std::endl;
+	//std::cout << "computed disparity is = " << disparity_tester << ", inf disparity = " << inf_disparity_tester << std::endl;
 
 	float random_results = -1.0;
 	bool show_display = true;
 
 	// sensors\stereo\aaazzz.conf 
-	state.disparity = -105;
-	state.zero_dist_disparity = -95;
+	//state.disparity = -105;
+	//state.zero_dist_disparity = -95;
+	state.disparity = -41;
+	state.zero_dist_disparity = -10;
 	state.sobelLimit = 860;
 	state.horizontalInvarianceMultiplier = 0.5;
 	state.blockSize = 5;
@@ -67,8 +90,8 @@ void DrawLines(Mat leftImg, Mat rightImg, Mat stereoImg,
 
 int main( )
 {
-	Mat matL = imread("11_Ls.jpg", CV_8UC1);
-	Mat matR = imread("11_Rs.jpg", CV_8UC1);
+	Mat matL = imread("11_L.jpg", CV_8UC1);
+	Mat matR = imread("11_R.jpg", CV_8UC1);
 
 	cv::vector<Point3f> pointVector3d;
 	cv::vector<uchar> pointColors;
@@ -93,6 +116,8 @@ int main( )
 
 	sdkStopTimer( &timer );
 	printf("timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+
+	cout << pointVector2d.size() << "points " <<  endl;
 
 	// output
 	Mat matDisp, remapL, remapR;
@@ -120,7 +145,7 @@ int main( )
 #endif
 
 	// global for where we are drawing a line on the image
-	bool visualize_stereo_hits = false;
+	bool visualize_stereo_hits = true;
 	bool show_unrectified = false;
 
 	if (state.show_display) {
@@ -129,9 +154,10 @@ int main( )
 			int x2 = pointVector2d[i].x;
 			int y2 = pointVector2d[i].y;
 			//int sad = pointVector2d[i].z;
-			rectangle(matDisp, Point(x2,y2), Point(x2+state.blockSize, y2+state.blockSize), 0,  CV_FILLED);
-			rectangle(matDisp, Point(x2+1,y2+1), Point(x2+state.blockSize-1, y2-1+state.blockSize), 255);
-
+			//rectangle(matDisp, Point(x2,y2), Point(x2+state.blockSize, y2+state.blockSize), 0,  CV_FILLED);
+				rectangle(matL, Point(x2,y2), Point(x2+state.blockSize, y2+state.blockSize), 0,  CV_FILLED);
+			//rectangle(matDisp, Point(x2+1,y2+1), Point(x2+state.blockSize-1, y2-1+state.blockSize), 255);
+				rectangle(matL, Point(x2+1,y2+1), Point(x2+state.blockSize-1, y2-1+state.blockSize), 255);
 		}
 
 		if (visualize_stereo_hits == true) {
@@ -146,8 +172,8 @@ int main( )
 
 	if (show_unrectified == false) {
 
-		imshow("matDisp", matDisp);
-
+		//imshow("matDisp", matDisp);
+			imshow("matL", matL);
 	} else {
 		imshow("matL", matL);
 	}
