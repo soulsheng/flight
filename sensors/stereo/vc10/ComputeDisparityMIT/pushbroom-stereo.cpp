@@ -23,9 +23,6 @@
 #define NUMERIC_CONST 333 // just a constant that we multiply the score by to make
                           // all the parameters in a nice integer range
 
-//PushbroomStereoThreadStarter thread_starter[NUM_THREADS+1];
-
-
 PushbroomStereo::PushbroomStereo() {
     // init worker threads
 
@@ -52,79 +49,6 @@ PushbroomStereo::PushbroomStereo() {
     }
 #endif
 }
-#if 0
-void* PushbroomStereo::WorkerThread(void *x) {
-
-    PushbroomStereoThreadStarter *statet = (PushbroomStereoThreadStarter*) x;
-
-    mutex *data_mutex = statet->data_mutex;
-    int thread_number = statet->thread_number;
-    condition_variable *cv_new_data = statet->cv_new_data;
-    condition_variable *cv_thread_finish = statet->cv_thread_finish;
-
-    PushbroomStereo *parent = statet->parent;
-
-    unique_lock<mutex> locker(*data_mutex, std::defer_lock);
-
-    while (true) {
-
-        // wait on the condition variable for
-        // "has new data"
-        data_mutex->lock();
-        //cout << "[thread locked]" << endl;
-
-        //cout << "[thread " << thread_number << "] waiting" << endl;
-        while (parent->GetHasNewData(thread_number) == false) {
-            //cout << "[thread " << thread_number << "] inside while loop" << endl;
-            //cout << "[thread " << thread_number << "] ready for notifictaions" << endl;
-            //cout << "[thread unlocked]" << endl;
-            cv_new_data->wait(locker);
-            //cout << "[thread locked]" << endl;
-            //cout << "[thread " << thread_number << "] after wait in while loop" << endl;
-        }
-
-        // if we don't already have the mutex, get it
-
-        //cout << "[thread " << thread_number << "] going" << endl;
-
-
-        // if we're here, there's work to be done
-        //cout << "[thread " << thread_number << "] running" << endl;
-
-        // see if that work is remapping or stereo processing
-        switch (parent->GetWorkType(thread_number)) {
-            case REMAP:
-                parent->RunRemapping(parent->GetRemapState(thread_number));
-                break;
-
-            case INTEREST_OP:
-                parent->RunInterestOp(parent->GetInterestOpState(thread_number));
-                break;
-
-            case STEREO:
-                parent->RunStereoPushbroomStereo(parent->GetThreadedState(thread_number));
-                break;
-
-            default:
-                cerr << "Warning: unknown thread work type." << endl;
-                break;
-        }
-
-        // done, signal the waiting main thread
-
-        parent->SetHasNewData(thread_number, false);
-        cv_thread_finish->notify_one();
-
-        data_mutex->unlock();
-        //cout << "[thread unlocked]" << endl;
-
-        //cout << "[thread " << thread_number << "] done" << endl;
-
-    }
-
-    return NULL;
-}
-#endif
 
 /**
  * Runs the fast, single-disparity stereo algorithm.  Returns a
@@ -316,41 +240,7 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
     }
 
 }
-#if 0
-void PushbroomStereo::StartWorkerThread(int i, ThreadWorkType work_type) {
 
-    work_type_[i] = work_type;
-
-    SetHasNewData(i, true);
-
-    data_mutexes_[i].unlock();
-    //cout << "[main unlocked]" << endl;
-
-
-    //cout << "[main] notifying [" << i << "]" << endl;
-    cv_new_data_[i].notify_one();
-}
-
-void PushbroomStereo::SyncWorkerThreads() {
-
-    //cout << "[main] in sync workers" << endl;
-    for (int i=0;i<NUM_THREADS;i++) {
-
-        //cout << "[main] trying for lock [" << i << "]" << endl;
-        data_mutexes_[i].lock();
-        //cout << "[main locked]" << endl;
-
-        while (GetHasNewData(i) == true) {
-            //cout << "[main] waiting on [" << i << "]" << endl;
-            // wait for the thread to finish
-            //cout << "[main unlocked]" << endl;
-            cv_thread_finish_[i].wait(lockers_[i]);
-            //cout << "[main locked]" << endl;
-        }
-    }
-    //cout << "[main] leaving sync workers" << endl;
-}
-#endif
 /**
  * Function (for running in a thread) that remaps images
  *

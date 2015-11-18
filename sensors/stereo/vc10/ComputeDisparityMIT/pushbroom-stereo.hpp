@@ -106,32 +106,10 @@ class PushbroomStereo {
         bool CheckHorizontalInvariance(Mat leftImage, Mat rightImage, Mat sobelL, Mat sobelR, int pxX, int pxY, PushbroomStereoState state);
 
 		int RoundUp(int numToRound, int multiple);
-#if 0
-        void StartWorkerThread(int i, ThreadWorkType work_type);
-        void SyncWorkerThreads();
-
-        // this must be static so the threading won't have to
-        // deal with the implicit 'this' variable
-        static void* WorkerThread(void *x);
-
-        pthread_t worker_pool_[NUM_THREADS+1];
-        ThreadWorkType work_type_[NUM_THREADS+1];
-
-        bool has_new_data_[NUM_THREADS+1];
-#endif
 
         PushbroomStereoStateThreaded thread_states_[NUM_THREADS+1];
         RemapThreadState remap_thread_states_[NUM_THREADS+1];
         InterestOpState interest_op_states_[NUM_THREADS+1];
-
-#if 0
-        mutex data_mutexes_[NUM_THREADS+1];
-
-        condition_variable cv_new_data_[NUM_THREADS+1];
-        condition_variable cv_thread_finish_[NUM_THREADS+1];
-
-        unique_lock<mutex> lockers_[NUM_THREADS+1];
-#endif
 
 
     public:
@@ -140,34 +118,9 @@ class PushbroomStereo {
         void ProcessImages(InputArray _leftImage, InputArray _rightImage, cv::vector<Point3f> *pointVector3d, cv::vector<uchar> *pointColors, cv::vector<Point3i> *pointVector2d, PushbroomStereoState state);
 
 		int GetSAD(Mat leftImage, Mat rightImage, Mat laplacianL, Mat laplacianR, int pxX, int pxY, PushbroomStereoState state, int *left_interest = NULL, int *right_interest = NULL, int *raw_sad = NULL);
-#if 0
-        ThreadWorkType GetWorkType(int i) { return work_type_[i]; }
-
-        PushbroomStereoStateThreaded* GetThreadedState(int i) {
-            return &(thread_states_[i]);
-        }
-
-        bool GetHasNewData(int i) { return has_new_data_[i]; }
-        void SetHasNewData(int i, bool val) { has_new_data_[i] = val; }
-
-        RemapThreadState* GetRemapState(int i) { return &(remap_thread_states_[i]); }
-
-        InterestOpState* GetInterestOpState(int i) { return &(interest_op_states_[i]); }
 
 };
 
-struct PushbroomStereoThreadStarter {
-    int thread_number;
-    mutex *data_mutex;
-    condition_variable *cv_new_data;
-    condition_variable *cv_thread_finish;
-    bool *is_working;
-
-    PushbroomStereo *parent;
-};
-#else
-};
-#endif
 
 
 #endif
