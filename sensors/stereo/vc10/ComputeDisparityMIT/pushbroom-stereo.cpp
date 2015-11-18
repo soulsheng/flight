@@ -22,7 +22,7 @@
 
 #define NUMERIC_CONST 333 // just a constant that we multiply the score by to make
                           // all the parameters in a nice integer range
-
+#define	MULTITHREAD_DISABLE		1
 PushbroomStereo::PushbroomStereo() {
     // init worker threads
 
@@ -83,7 +83,7 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
     // appropriate spot in the array
     Mat remapped_left(state.mapxL.rows, state.mapxL.cols, leftImage.depth());
     Mat remapped_right(state.mapxR.rows, state.mapxR.cols, rightImage.depth());
-#if 1
+#if MULTITHREAD_DISABLE
 		remap( leftImage, remapped_left, state.mapxL, Mat(), INTER_NEAREST);
 		remap( rightImage, remapped_right, state.mapxR, Mat(), INTER_NEAREST);
 
@@ -123,7 +123,7 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 
     Mat laplacian_left(remapped_left.rows, remapped_left.cols, remapped_left.depth());
     Mat laplacian_right(remapped_right.rows, remapped_right.cols, remapped_right.depth());
-#if 1
+#if MULTITHREAD_DISABLE
 	    // apply interest operator
 		Laplacian( remapped_left, laplacian_left, -1, 3, 1, 0, BORDER_DEFAULT);
 
@@ -172,7 +172,16 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
         rows = state.lastValidPixelRow;
     }
 
+	
+#if MULTITHREAD_DISABLE
 
+    int rows_round = RoundUp(rows, state.blockSize);
+
+	RunStereoPushbroomStereo( remapped_left, remapped_right, laplacian_left, laplacian_right,
+	pointVector3d, pointVector2d, pointColors,
+	0, rows_round - 1, state );
+
+#else
     // figure out how to split up the work
     int thread_increment = RoundUp(rows/NUM_THREADS, state.blockSize);
     int last_thread_num_rows = rows - thread_increment * (NUM_THREADS - 1);
@@ -226,6 +235,7 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
     //SyncWorkerThreads();
 
     //cout << "[main] got all stereo" << endl;
+#endif
 
     int numPoints = 0;
     // compute the required size of our return vector
@@ -301,7 +311,16 @@ void PushbroomStereo::RunStereoPushbroomStereo(PushbroomStereoStateThreaded *sta
     int row_end = statet->row_end;
 
     PushbroomStereoState state = statet->state;
+	
+	RunStereoPushbroomStereo( leftImage, rightImage, laplacian_left, laplacian_right,
+	pointVector3d, pointVector2d, pointColors,
+	row_start, row_end, state );
+}
 
+void PushbroomStereo::RunStereoPushbroomStereo( Mat leftImage, Mat rightImage, Mat laplacian_left, Mat laplacian_right,
+	cv::vector<Point3f> *pointVector3d, cv::vector<Point3i> *pointVector2d, cv::vector<uchar> *pointColors,
+	int row_start,  int row_end, PushbroomStereoState state )
+{
     // we will do this by looping through every block in the left image
     // (defined by blockSize) and checking for a matching value on
     // the right image

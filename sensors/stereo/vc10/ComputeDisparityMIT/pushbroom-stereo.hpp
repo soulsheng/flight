@@ -98,6 +98,9 @@ struct InterestOpState {
 class PushbroomStereo {
     private:
         void RunStereoPushbroomStereo(PushbroomStereoStateThreaded *statet);
+		void PushbroomStereo::RunStereoPushbroomStereo( Mat leftImage, Mat rightImage, Mat laplacian_left, Mat laplacian_right,
+	cv::vector<Point3f> *pointVector3d, cv::vector<Point3i> *pointVector2d, cv::vector<uchar> *pointColors,
+	int row_start,  int row_end, PushbroomStereoState state );
 
         void RunRemapping(RemapThreadState *remap_state);
 
@@ -108,8 +111,8 @@ class PushbroomStereo {
 		int RoundUp(int numToRound, int multiple);
 
         PushbroomStereoStateThreaded thread_states_[NUM_THREADS+1];
-        //RemapThreadState remap_thread_states_[NUM_THREADS+1];
-        //InterestOpState interest_op_states_[NUM_THREADS+1];
+        RemapThreadState remap_thread_states_[NUM_THREADS+1];
+        InterestOpState interest_op_states_[NUM_THREADS+1];
 
 
     public:
