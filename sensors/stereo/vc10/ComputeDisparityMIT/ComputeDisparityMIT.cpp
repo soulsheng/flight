@@ -77,7 +77,7 @@ int configCD(OpenCvStereoCalibration& stereoCalibration, PushbroomStereoState& s
 	state.Q = stereoCalibration.qMat;
 	state.show_display = show_display;
 
-	state.lastValidPixelRow =  205;
+	state.lastValidPixelRow =  -1;
 
 	return 0;
 }
