@@ -108,8 +108,8 @@ class PushbroomStereo {
 		int RoundUp(int numToRound, int multiple);
 
         PushbroomStereoStateThreaded thread_states_[NUM_THREADS+1];
-        RemapThreadState remap_thread_states_[NUM_THREADS+1];
-        InterestOpState interest_op_states_[NUM_THREADS+1];
+        //RemapThreadState remap_thread_states_[NUM_THREADS+1];
+        //InterestOpState interest_op_states_[NUM_THREADS+1];
 
 
     public:

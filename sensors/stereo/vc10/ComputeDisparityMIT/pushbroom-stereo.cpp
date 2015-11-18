@@ -83,7 +83,11 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
     // appropriate spot in the array
     Mat remapped_left(state.mapxL.rows, state.mapxL.cols, leftImage.depth());
     Mat remapped_right(state.mapxR.rows, state.mapxR.cols, rightImage.depth());
+#if 1
+		remap( leftImage, remapped_left, state.mapxL, Mat(), INTER_NEAREST);
+		remap( rightImage, remapped_right, state.mapxR, Mat(), INTER_NEAREST);
 
+#else
 
 
     for (int i = 0; i < NUM_THREADS; i++) {
@@ -114,11 +118,17 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
     //SyncWorkerThreads();
 
     //cout << "[main] all remap threads finished" << endl;
+#endif
 
 
     Mat laplacian_left(remapped_left.rows, remapped_left.cols, remapped_left.depth());
     Mat laplacian_right(remapped_right.rows, remapped_right.cols, remapped_right.depth());
+#if 1
+	    // apply interest operator
+		Laplacian( remapped_left, laplacian_left, -1, 3, 1, 0, BORDER_DEFAULT);
 
+		Laplacian( remapped_right, laplacian_right, -1, 3, 1, 0, BORDER_DEFAULT);
+#else
     for (int i = 0; i < NUM_THREADS; i++) {
 
         int start = rows/NUM_THREADS*i;
@@ -148,6 +158,7 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
     //imshow("Right Block", laplacian_right);
 
     //cout << "[main] imshow2 ok" << endl;
+#endif
 
     cv::vector<Point3f> pointVector3dArray[NUM_THREADS+1];
     cv::vector<Point3i> pointVector2dArray[NUM_THREADS+1];
