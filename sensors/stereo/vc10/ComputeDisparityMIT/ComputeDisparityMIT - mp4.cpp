@@ -10,6 +10,7 @@ using namespace cv;
 
 #include "helper_timer.h"
 
+
 int main( )
 {
 	Mat matL = imread("11_L.jpg", CV_8UC1);

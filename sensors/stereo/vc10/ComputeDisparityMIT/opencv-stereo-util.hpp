@@ -12,6 +12,7 @@
 #include <highgui.h>
 #include "opencv2/legacy/legacy.hpp"
 #include "opencv2/opencv.hpp"
+#include "pushbroom-stereo-def.hpp"
 
 
 #include <string>
@@ -119,5 +120,7 @@ int GetDisparityForDistance(double distance, const OpenCvStereoCalibration &cali
 
 void DrawLines(Mat leftImg, Mat rightImg, Mat stereoImg, 
 	int lineX, int lineY, int disparity, int inf_disparity);
+
+int configCD(OpenCvStereoCalibration& stereoCalibration, PushbroomStereoState& state);
 
 #endif

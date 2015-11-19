@@ -7,6 +7,8 @@
 
 #include "opencv-stereo-util.hpp"
 
+#define ConfigFile	"aaazzz.conf"
+#define CalibrationDir	"..\\..\\calib-02-20-2014"
 
 /**
  * Loads XML stereo calibration files and reamps them.
@@ -457,4 +459,73 @@ void DrawLines(Mat leftImg, Mat rightImg, Mat stereoImg, int lineX, int lineY, i
         line(stereoImg, Point(0, lineY), Point(leftImg.cols, lineY), lineColor);
         line(rightImg, Point(0, lineY), Point(rightImg.cols, lineY), lineColor);
     }
+}
+
+int configCD(OpenCvStereoCalibration& stereoCalibration, PushbroomStereoState& state) 
+{
+	
+	
+    // load calibration from calibexe
+	CalibParams calibparam;
+	if( !readCalibrationFiles(calibparam) )
+	{
+		printf("Cannot find calibration file!\n");
+		//EtronDI_CloseDevice(m_hEtronDI);
+		return 0 ;
+	}
+	//OpenCvStereoCalibration stereoCalibration;
+	
+		if (TransCalibration(calibparam, &stereoCalibration) != true)
+	{
+		cerr << "Error: failed to read calibration files. Quitting." << endl;
+		return -1;
+	}
+/*
+	if (LoadCalibration(CalibrationDir, &stereoCalibration) != true)
+	{
+		cerr << "Error: failed to read calibration files. Quitting." << endl;
+		return -1;
+	}
+	*/
+	
+
+
+
+
+	int inf_disparity_tester, disparity_tester;
+	//para of Distance
+	disparity_tester = GetDisparityForDistance(3000, stereoCalibration, &inf_disparity_tester);
+
+	//std::cout << "computed disparity is = " << disparity_tester << ", inf disparity = " << inf_disparity_tester << std::endl;
+
+	float random_results = -1.0;
+	bool show_display = true;
+
+	// sensors\stereo\aaazzz.conf 
+	//state.disparity = -105;
+	//state.zero_dist_disparity = -95;
+	state.disparity = -41;
+	state.zero_dist_disparity = -10;
+	state.sobelLimit = 860;
+	state.horizontalInvarianceMultiplier = 0.5;
+	state.blockSize = 5;
+	state.random_results = random_results;
+	state.check_horizontal_invariance = true;
+
+	if (state.blockSize > 10 || state.blockSize < 1)
+	{
+		fprintf(stderr, "Warning: block size is very large "
+			"or small (%d).  Expect trouble.\n", state.blockSize);
+	}
+
+	state.sadThreshold = 54;
+
+	state.mapxL = stereoCalibration.mx1fp;
+	state.mapxR = stereoCalibration.mx2fp;
+	state.Q = stereoCalibration.qMat;
+	state.show_display = show_display;
+
+	state.lastValidPixelRow =  -1;
+
+	return 0;
 }
