@@ -31,11 +31,6 @@ int main( )
 
 	CvVideoWriter* writer = cvCreateVideoWriter(  
 		IMAGE_FILE_MP4_OUT, CV_FOURCC('D', 'I', 'V', 'X'),fps,size);  
-	
-	cv::vector<Point3f> pointVector3d;
-	cv::vector<uchar> pointColors;
-	cv::vector<Point3i> pointVector2d; // for display
-	cv::vector<Point3i> pointVector2d_inf; // for display
 
 
 	OpenCvStereoCalibration stereoCalibration;
@@ -66,6 +61,10 @@ int main( )
 
 			cvCvtColor( iplImgR, iplImgR1, CV_BGR2GRAY);
 			matR = iplImgR1;
+				
+			cv::vector<Point3f> pointVector3d;
+			cv::vector<uchar> pointColors;
+			cv::vector<Point3i> pointVector2d; // for display
 
 			sdkResetTimer( &timer );
 			sdkStartTimer( &timer );
