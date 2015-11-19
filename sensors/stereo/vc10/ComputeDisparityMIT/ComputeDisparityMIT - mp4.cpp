@@ -10,12 +10,27 @@ using namespace cv;
 
 #include "helper_timer.h"
 
+#define	IMAGE_FILE_MP4				"昆虫总动员-预告.mp4"
+#define	IMAGE_FILE_MP4_OUT		"CollisionAvoidance30s.avi"
 
 int main( )
 {
-	Mat matL = imread("11_L.jpg", CV_8UC1);
-	Mat matR = imread("11_R.jpg", CV_8UC1);
+	Mat matL ;//= imread("11_L.jpg", CV_8UC1);
+	Mat matR ;//= imread("11_R.jpg", CV_8UC1);
+	CvCapture* capture = 0;
+	cv::Mat imageIn;
+	IplImage iplImgOut;
 
+	capture = cvCaptureFromAVI( IMAGE_FILE_MP4 );
+
+	double fps = cvGetCaptureProperty(capture,CV_CAP_PROP_FPS);   
+	CvSize size = cvSize(
+		(int)cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH),  
+		(int)cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT));    
+
+	CvVideoWriter* writer = cvCreateVideoWriter(  
+		IMAGE_FILE_MP4_OUT, CV_FOURCC('D', 'I', 'V', 'X'),fps,size);  
+	
 	cv::vector<Point3f> pointVector3d;
 	cv::vector<uchar> pointColors;
 	cv::vector<Point3i> pointVector2d; // for display
@@ -28,80 +43,68 @@ int main( )
 
 	PushbroomStereo pushbroom_stereo;
 
+	IplImage* iplImgL1 = cvCreateImage( size, IPL_DEPTH_8U, 1 );  
 
 	StopWatchInterface	*timer;
 	sdkCreateTimer( &timer );
 
-	sdkResetTimer( &timer );
-	sdkStartTimer( &timer );
 
-	pushbroom_stereo.ProcessImages(matL, matR, &pointVector3d, &pointColors, &pointVector2d, state);
+	if( capture )
+	{
+		cout << "In capture ..." << endl;
+		int nFrameCount = 0;
+		int nFrameCountMax = fps*28;
+		for(;nFrameCount<nFrameCountMax;nFrameCount++)
+		{
+			IplImage* iplImgL = cvQueryFrame( capture );
 
-	sdkStopTimer( &timer );
-	printf("timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+			cvCvtColor( iplImgL, iplImgL1, CV_BGR2GRAY);
+			matL = iplImgL1;
 
-	cout << pointVector2d.size() << "points " <<  endl;
+			sdkResetTimer( &timer );
+			sdkStartTimer( &timer );
 
-	// output
-	Mat matDisp, remapL, remapR;
-#if 1
-	remapL = matL;
-	remapR = matR;
-	remapL.copyTo(matDisp);
-#else
-	if (state.show_display) {
-		// we remap again here because we're just in display
-		Mat remapLtemp(matL.rows, matL.cols, matL.depth());
-		Mat remapRtemp(matR.rows, matR.cols, matR.depth());
+			pushbroom_stereo.ProcessImages( matL, matL, &pointVector3d, &pointColors, &pointVector2d, state);
 
-		remapL = remapLtemp;
-		remapR = remapRtemp;
+			sdkStopTimer( &timer );
+			printf("timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
-		remap(matL, remapL, stereoCalibration.mx1fp, Mat(), INTER_NEAREST);
-		remap(matR, remapR, stereoCalibration.mx2fp, Mat(), INTER_NEAREST);
+			cout << pointVector2d.size() << "points " <<  endl;
 
-		remapL.copyTo(matDisp);
+			// output
+			Mat matDisp, remapL, remapR;
 
-		//process LCM until there are no more messages
-		// this allows us to drop frames if we are behind
-	} // end show_display
-#endif
+			remapL = matL;
+			remapR = matR;
+			remapL.copyTo(matDisp);
 
-	// global for where we are drawing a line on the image
-	bool visualize_stereo_hits = true;
-	bool show_unrectified = false;
 
-	if (state.show_display) {
+			// global for where we are drawing a line on the image
+			for (unsigned int i=0;i<pointVector2d.size();i++) {
+					int x2 = pointVector2d[i].x;
+					int y2 = pointVector2d[i].y;
+					rectangle(matL, Point(x2,y2), Point(x2+state.blockSize, y2+state.blockSize), 0,  CV_FILLED);
+					rectangle(matL, Point(x2+1,y2+1), Point(x2+state.blockSize-1, y2-1+state.blockSize), 255);
+			}
 
-		for (unsigned int i=0;i<pointVector2d.size();i++) {
-			int x2 = pointVector2d[i].x;
-			int y2 = pointVector2d[i].y;
-			//int sad = pointVector2d[i].z;
-			//rectangle(matDisp, Point(x2,y2), Point(x2+state.blockSize, y2+state.blockSize), 0,  CV_FILLED);
-				rectangle(matL, Point(x2,y2), Point(x2+state.blockSize, y2+state.blockSize), 0,  CV_FILLED);
-			//rectangle(matDisp, Point(x2+1,y2+1), Point(x2+state.blockSize-1, y2-1+state.blockSize), 255);
-				rectangle(matL, Point(x2+1,y2+1), Point(x2+state.blockSize-1, y2-1+state.blockSize), 255);
+			cv::imshow("matL", matL );
+	
+			*iplImgL1 = matL;
+			cvCvtColor( iplImgL1, iplImgL, CV_GRAY2BGR);
+
+			cvWriteToAVI( writer, iplImgL );  
+
+			if( waitKey( 10 ) >= 0 )
+				goto _cleanup_;
 		}
 
-		if (visualize_stereo_hits == true) {
+		waitKey(0);
 
-			// draw the points on the unrectified image (to see these
-			// you must pass the -u flag)
-			Draw3DPointsOnImage(matL, &pointVector3d, stereoCalibration.M1, stereoCalibration.D1, stereoCalibration.R1, 128);
-
-		}
-
+_cleanup_:
+		cvReleaseVideoWriter( &writer ); 
+		cvReleaseCapture( &capture );
 	}
 
-	if (show_unrectified == false) {
-
-		//imshow("matDisp", matDisp);
-			imshow("matL", matL);
-	} else {
-		imshow("matL", matL);
-	}
-
-	waitKey();
 
 	return 0;
 }
