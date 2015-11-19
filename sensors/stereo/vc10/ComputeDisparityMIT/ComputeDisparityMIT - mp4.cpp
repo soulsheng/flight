@@ -10,23 +10,24 @@ using namespace cv;
 
 #include "helper_timer.h"
 
-#define	IMAGE_FILE_MP4				"昆虫总动员-预告.mp4"
+#define	IMAGE_FILE_MP4_L				"昆虫总动员-预告L.mp4"
+#define	IMAGE_FILE_MP4_R				"昆虫总动员-预告L.mp4"
 #define	IMAGE_FILE_MP4_OUT		"CollisionAvoidance30s.avi"
 
 int main( )
 {
 	Mat matL ;//= imread("11_L.jpg", CV_8UC1);
 	Mat matR ;//= imread("11_R.jpg", CV_8UC1);
-	CvCapture* capture = 0;
-	cv::Mat imageIn;
-	IplImage iplImgOut;
+	CvCapture* capture_L = 0;
+	CvCapture* capture_R = 0;
 
-	capture = cvCaptureFromAVI( IMAGE_FILE_MP4 );
+	capture_L = cvCaptureFromAVI( IMAGE_FILE_MP4_L );
+	capture_R = cvCaptureFromAVI( IMAGE_FILE_MP4_R );
 
-	double fps = cvGetCaptureProperty(capture,CV_CAP_PROP_FPS);   
+	double fps = cvGetCaptureProperty(capture_L,CV_CAP_PROP_FPS);   
 	CvSize size = cvSize(
-		(int)cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH),  
-		(int)cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT));    
+		(int)cvGetCaptureProperty( capture_L, CV_CAP_PROP_FRAME_WIDTH),  
+		(int)cvGetCaptureProperty( capture_L, CV_CAP_PROP_FRAME_HEIGHT));    
 
 	CvVideoWriter* writer = cvCreateVideoWriter(  
 		IMAGE_FILE_MP4_OUT, CV_FOURCC('D', 'I', 'V', 'X'),fps,size);  
@@ -44,40 +45,37 @@ int main( )
 	PushbroomStereo pushbroom_stereo;
 
 	IplImage* iplImgL1 = cvCreateImage( size, IPL_DEPTH_8U, 1 );  
+	IplImage* iplImgR1 = cvCreateImage( size, IPL_DEPTH_8U, 1 );  
 
 	StopWatchInterface	*timer;
 	sdkCreateTimer( &timer );
 
 
-	if( capture )
+	if( capture_L && capture_R )
 	{
 		cout << "In capture ..." << endl;
 		int nFrameCount = 0;
 		int nFrameCountMax = fps*28;
 		for(;nFrameCount<nFrameCountMax;nFrameCount++)
 		{
-			IplImage* iplImgL = cvQueryFrame( capture );
+			IplImage* iplImgL = cvQueryFrame( capture_L );
+			IplImage* iplImgR = cvQueryFrame( capture_R );
 
 			cvCvtColor( iplImgL, iplImgL1, CV_BGR2GRAY);
 			matL = iplImgL1;
 
+			cvCvtColor( iplImgR, iplImgR1, CV_BGR2GRAY);
+			matR = iplImgR1;
+
 			sdkResetTimer( &timer );
 			sdkStartTimer( &timer );
 
-			pushbroom_stereo.ProcessImages( matL, matL, &pointVector3d, &pointColors, &pointVector2d, state);
+			pushbroom_stereo.ProcessImages( matL, matR, &pointVector3d, &pointColors, &pointVector2d, state);
 
 			sdkStopTimer( &timer );
 			printf("timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
 			cout << pointVector2d.size() << "points " <<  endl;
-
-			// output
-			Mat matDisp, remapL, remapR;
-
-			remapL = matL;
-			remapR = matR;
-			remapL.copyTo(matDisp);
-
 
 			// global for where we are drawing a line on the image
 			for (unsigned int i=0;i<pointVector2d.size();i++) {
@@ -102,7 +100,8 @@ int main( )
 
 _cleanup_:
 		cvReleaseVideoWriter( &writer ); 
-		cvReleaseCapture( &capture );
+		cvReleaseCapture( &capture_L );
+		cvReleaseCapture( &capture_R );
 	}
 
 
