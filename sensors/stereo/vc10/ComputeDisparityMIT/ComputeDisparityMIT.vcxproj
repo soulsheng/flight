@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opencv-stereo-util.hpp" />
+    <ClInclude Include="pushbroom-stereo-def.hpp" />
     <ClInclude Include="pushbroom-stereo.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

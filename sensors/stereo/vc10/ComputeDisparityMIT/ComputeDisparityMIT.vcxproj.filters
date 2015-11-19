@@ -32,5 +32,8 @@
     <ClInclude Include="opencv-stereo-util.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="pushbroom-stereo-def.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -116,4 +116,8 @@ void Draw3DPointsOnImage(Mat camera_image, vector<Point3f> *points_list_in, Mat 
 
 int GetDisparityForDistance(double distance, const OpenCvStereoCalibration &calibration, int *inf_disparity = NULL);
 
+
+void DrawLines(Mat leftImg, Mat rightImg, Mat stereoImg, 
+	int lineX, int lineY, int disparity, int inf_disparity);
+
 #endif

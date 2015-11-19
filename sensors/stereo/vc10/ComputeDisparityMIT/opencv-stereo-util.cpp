@@ -426,3 +426,35 @@ int GetDisparityForDistance(double distance, const OpenCvStereoCalibration &cali
     return best_disparity;
 }
 
+/**
+ * Draws lines on the images for stereo debugging.
+ *
+ * @param rightImg right image
+ * @param stereoImg stereo image
+ * @param lineX x position of the line to draw
+ * @param lineY y position of the line to draw
+ * @param disparity disparity move the line on the right image over by
+ * @param inf_disparity disparity corresponding to "infinite distance"
+ *  used to filter out false-positives.  Usually availible in
+ *   state.zero_dist_disparity.
+ */
+void DrawLines(Mat leftImg, Mat rightImg, Mat stereoImg, int lineX, int lineY, int disparity, int inf_disparity) {
+    int lineColor = 128;
+    if (lineX >= 0)
+    {
+        // print out the values of the pixels where they clicked
+        //cout << endl << endl << "Left px: " << (int)leftImg.at<uchar>(lineY, lineX)
+        //    << "\tRight px: " << (int)rightImg.at<uchar>(lineY, lineX + disparity)
+        //    << endl;
+
+        line(leftImg, Point(lineX, 0), Point(lineX, leftImg.rows), lineColor);
+        line(stereoImg, Point(lineX, 0), Point(lineX, leftImg.rows), lineColor);
+        line(rightImg, Point(lineX + disparity, 0), Point(lineX + disparity, rightImg.rows), lineColor);
+
+        line(rightImg, Point(lineX + inf_disparity, 0), Point(lineX + inf_disparity, rightImg.rows), lineColor);
+
+        line(leftImg, Point(0, lineY), Point(leftImg.cols, lineY), lineColor);
+        line(stereoImg, Point(0, lineY), Point(leftImg.cols, lineY), lineColor);
+        line(rightImg, Point(0, lineY), Point(rightImg.cols, lineY), lineColor);
+    }
+}
