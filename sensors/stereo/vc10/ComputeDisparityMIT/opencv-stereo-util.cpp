@@ -494,7 +494,7 @@ int configCD(OpenCvStereoCalibration& stereoCalibration, PushbroomStereoState& s
 
 	int inf_disparity_tester, disparity_tester;
 	//para of Distance
-	disparity_tester = GetDisparityForDistance(3000, stereoCalibration, &inf_disparity_tester);
+	disparity_tester = GetDisparityForDistance(2000, stereoCalibration, &inf_disparity_tester);
 
 	//std::cout << "computed disparity is = " << disparity_tester << ", inf disparity = " << inf_disparity_tester << std::endl;
 
@@ -504,8 +504,8 @@ int configCD(OpenCvStereoCalibration& stereoCalibration, PushbroomStereoState& s
 	// sensors\stereo\aaazzz.conf 
 	//state.disparity = -105;
 	//state.zero_dist_disparity = -95;
-	state.disparity = -41;
-	state.zero_dist_disparity = -10;
+	state.disparity = disparity_tester;		// -41
+	state.zero_dist_disparity = inf_disparity_tester;			// -1
 	state.sobelLimit = 860;
 	state.horizontalInvarianceMultiplier = 0.5;
 	state.blockSize = 5;

@@ -10,8 +10,8 @@ using namespace cv;
 
 #include "helper_timer.h"
 
-#define	IMAGE_FILE_MP4_L				"昆虫总动员-预告L.mp4"
-#define	IMAGE_FILE_MP4_R				"昆虫总动员-预告L.mp4"
+#define	IMAGE_FILE_MP4_L				"2_5f.mp4"
+#define	IMAGE_FILE_MP4_R				"2_right_5f.mp4"
 #define	IMAGE_FILE_MP4_OUT		"CollisionAvoidance30s.avi"
 
 int main( )
@@ -50,7 +50,7 @@ int main( )
 	{
 		cout << "In capture ..." << endl;
 		int nFrameCount = 0;
-		int nFrameCountMax = fps*28;
+		int nFrameCountMax = fps*128;
 		for(;nFrameCount<nFrameCountMax;nFrameCount++)
 		{
 			IplImage* iplImgL = cvQueryFrame( capture_L );
