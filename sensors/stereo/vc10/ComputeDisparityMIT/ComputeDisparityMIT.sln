@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pushbroom-stereo-main", "..
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComputeDisparityMIT - mp4", "ComputeDisparityMIT - mp4.vcxproj", "{4E475D04-FF87-479A-A2AE-21794B4FE918}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComputeDisparityMIT - cuda", "ComputeDisparityMIT - cuda.vcxproj", "{7B79530F-9AFA-4C58-B39A-1CFDA671B0E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -25,6 +27,10 @@ Global
 		{4E475D04-FF87-479A-A2AE-21794B4FE918}.Debug|Win32.Build.0 = Debug|Win32
 		{4E475D04-FF87-479A-A2AE-21794B4FE918}.Release|Win32.ActiveCfg = Release|Win32
 		{4E475D04-FF87-479A-A2AE-21794B4FE918}.Release|Win32.Build.0 = Release|Win32
+		{7B79530F-9AFA-4C58-B39A-1CFDA671B0E0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7B79530F-9AFA-4C58-B39A-1CFDA671B0E0}.Debug|Win32.Build.0 = Debug|Win32
+		{7B79530F-9AFA-4C58-B39A-1CFDA671B0E0}.Release|Win32.ActiveCfg = Release|Win32
+		{7B79530F-9AFA-4C58-B39A-1CFDA671B0E0}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
