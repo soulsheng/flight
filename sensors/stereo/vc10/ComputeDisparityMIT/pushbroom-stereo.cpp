@@ -371,16 +371,27 @@ void PushbroomStereo::RunStereoPushbroomStereo( Mat leftImage, Mat rightImage, M
     if (state.random_results < 0) {
 		int *sadArray = new int[ row_end * stopJ ];
 		int iStep, jStep;
+#ifdef USE_GPU
+		StopWatchInterface	*timer;
+		sdkCreateTimer( &timer );
+		sdkResetTimer( &timer );
+		sdkStartTimer( &timer );
+
         for (int i=row_start,iStep = 0; i < row_end; i+=blockSize, iStep++)
         {
             for (int j=startJ, jStep = 0; j < stopJ; j+=blockSize, jStep++)
             {
                 // get the sum of absolute differences for this location
                 // on both images
-#if 1
 				sadArray[ iStep * stopJ + jStep] = GetSAD(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
 			}
 		}
+
+		sdkStopTimer( &timer );
+		//printf("RunStereo bottleneck timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+		sdkDeleteTimer( &timer );
+
+#endif
 
 		for (int i=row_start,iStep = 0; i < row_end; i+=blockSize, iStep++)
 		{
@@ -388,6 +399,7 @@ void PushbroomStereo::RunStereoPushbroomStereo( Mat leftImage, Mat rightImage, M
 			{                        
                 // check to see if the SAD is below the threshold,
                 // indicating a hit
+#ifdef USE_GPU
 				int sad = sadArray[ iStep * stopJ + jStep];
 #else
 				int sad= GetSAD(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
