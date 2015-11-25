@@ -72,10 +72,13 @@ int main( )
 			pushbroom_stereo.ProcessImages( matL, matR, &pointVector3d, &pointColors, &pointVector2d, state);
 
 			sdkStopTimer( &timer );
-			printf("timer: %.2f ms \n", sdkGetTimerValue( &timer) );
-
-			cout << pointVector2d.size() << "points " <<  endl;
-
+			//printf("timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+			if( 20 < pointVector2d.size() ) {
+				cout << nFrameCount << " frame: " << pointVector2d.size() << "points;	" ;
+				if( 0 == nFrameCount % (int)fps )
+					cout << endl;
+			}
+			//	waitKey();
 			// global for where we are drawing a line on the image
 			for (unsigned int i=0;i<pointVector2d.size();i++) {
 					int x2 = pointVector2d[i].x;

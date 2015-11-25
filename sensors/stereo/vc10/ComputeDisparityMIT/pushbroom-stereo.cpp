@@ -129,7 +129,7 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 #endif
 	
 	sdkStopTimer( &timer );
-	printf("remap timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+	//printf("remap timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
 	
 	sdkResetTimer( &timer );
@@ -175,7 +175,7 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 #endif
 	
 	sdkStopTimer( &timer );
-	printf("laplacian timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+	//printf("laplacian timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
 	sdkResetTimer( &timer );
 	sdkStartTimer( &timer );
@@ -259,7 +259,7 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 
 		
 	sdkStopTimer( &timer );
-	printf("RunStereo timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+	//printf("RunStereo timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
     int numPoints = 0;
     // compute the required size of our return vector
@@ -369,15 +369,29 @@ void PushbroomStereo::RunStereoPushbroomStereo( Mat leftImage, Mat rightImage, M
 
 
     if (state.random_results < 0) {
-        for (int i=row_start; i < row_end; i+=blockSize)
+		int *sadArray = new int[ row_end * stopJ ];
+		int iStep, jStep;
+        for (int i=row_start,iStep = 0; i < row_end; i+=blockSize, iStep++)
         {
-            for (int j=startJ; j < stopJ; j+=blockSize)
+            for (int j=startJ, jStep = 0; j < stopJ; j+=blockSize, jStep++)
             {
                 // get the sum of absolute differences for this location
                 // on both images
-                int sad = GetSAD(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
+#if 1
+				sadArray[ iStep * stopJ + jStep] = GetSAD(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
+			}
+		}
+
+		for (int i=row_start,iStep = 0; i < row_end; i+=blockSize, iStep++)
+		{
+			for (int j=startJ, jStep = 0; j < stopJ; j+=blockSize, jStep++)
+			{                        
                 // check to see if the SAD is below the threshold,
                 // indicating a hit
+				int sad = sadArray[ iStep * stopJ + jStep];
+#else
+				int sad= GetSAD(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
+#endif
                 if (sad < sadThreshold && sad >= 0)
                 {
                     // got a hit
