@@ -7,7 +7,7 @@
 class GetSadCUDA
 {
 public:
-	int GetSADCPP(Mat leftImage, Mat rightImage, Mat laplacianL, Mat laplacianR, int pxX, int pxY, PushbroomStereoState state )
+	int GetSADCPP(uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int pxX, int pxY, PushbroomStereoState state )
 	{
 		// init parameters
 		int blockSize = state.blockSize;
@@ -19,10 +19,7 @@ public:
 		int startY = pxY;
 
 		// bottom right corner of the SAD box
-		#ifndef USE_NEON
-			int endX = pxX + blockSize - 1;
-		#endif
-
+		int endX = pxX + blockSize - 1;
 		int endY = pxY + blockSize - 1;
 
 		//printf("startX = %d, endX = %d, disparity = %d, startY = %d, endY = %d, rows = %d, cols = %d\n", startX, endX, disparity, startY, endY, leftImage.rows, leftImage.cols);
@@ -33,11 +30,11 @@ public:
 
 		for (int i=startY;i<=endY;i++) {
 			// get a pointer for this row
-			uchar *this_rowL = leftImage.ptr<uchar>(i);
-			uchar *this_rowR = rightImage.ptr<uchar>(i);
+			uchar *this_rowL = leftImage + i * nstep;
+			uchar *this_rowR = rightImage + i * nstep;
 
-			uchar *this_row_laplacianL = laplacianL.ptr<uchar>(i);
-			uchar *this_row_laplacianR = laplacianR.ptr<uchar>(i);
+			uchar *this_row_laplacianL = laplacianL + i * nstep;
+			uchar *this_row_laplacianR = laplacianR + i * nstep;
 
 
 				for (int j=startX;j<=endX;j++) {
