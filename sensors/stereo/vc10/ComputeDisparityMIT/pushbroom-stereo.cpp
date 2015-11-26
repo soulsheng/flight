@@ -386,14 +386,19 @@ void PushbroomStereo::RunStereoPushbroomStereo( Mat leftImage, Mat rightImage, M
 
 #endif
 
-		for (int i=row_start,iStep = 0; i < row_end; i+=blockSize, iStep++)
+		int gridY = (row_end - row_start)/blockSize;
+		int gridX = (stopJ - startJ)/blockSize;
+
+		for (int y=0; y< gridY; y++)
 		{
-			for (int j=startJ, jStep = 0; j < stopJ; j+=blockSize, jStep++)
-			{                        
+			for (int x=0; x< gridX; x++)
+			{               
                 // check to see if the SAD is below the threshold,
                 // indicating a hit
+				int i = row_start + y * blockSize;
+				int j = startJ + x * blockSize;
 #ifdef USE_GPU
-				int sad = sadArray[ iStep * stopJ + jStep];
+				int sad = sadArray[ y * gridX + x];
 #else
 				int sad= GetSAD(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
 #endif

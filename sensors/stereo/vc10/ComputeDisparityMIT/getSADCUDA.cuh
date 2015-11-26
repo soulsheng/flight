@@ -81,6 +81,21 @@ public:
 
 	void runGetSAD( int row_start, int row_end, int startJ, int stopJ, int * sadArray, uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int blockSize, int disparity, int sobelLimit )
 	{
+#if 1
+		int gridY = (row_end - row_start)/blockSize;
+		int gridX = (stopJ - startJ)/blockSize;
+		for (int y=0; y< gridY; y++)
+		{
+			for (int x=0; x< gridX; x++)
+			{
+				int i = row_start + y * blockSize;
+				int j = startJ + x * blockSize;
+				sadArray[ y * gridX + x] = GetSAD_kernel(leftImage, rightImage, laplacianL, laplacianR, nstep, j, i, 
+					blockSize, disparity, sobelLimit );
+			}
+		}
+
+#else
 		for (int i=row_start,iStep = 0; i < row_end; i+=blockSize, iStep++)
 		{
 			for (int j=startJ, jStep = 0; j < stopJ; j+=blockSize, jStep++)
@@ -91,6 +106,7 @@ public:
 					blockSize, disparity, sobelLimit );
 			}
 		}
+#endif
 	}
 };
 
