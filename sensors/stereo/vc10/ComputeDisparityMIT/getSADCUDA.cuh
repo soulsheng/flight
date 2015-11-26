@@ -7,12 +7,13 @@
 class GetSadCUDA
 {
 public:
-	int GetSADCPP(uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int pxX, int pxY, PushbroomStereoState state )
+	int GetSADCPP(uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int pxX, int pxY, 
+		int blockSize, int disparity, int sobelLimit )
 	{
 		// init parameters
-		int blockSize = state.blockSize;
-		int disparity = state.disparity;
-		int sobelLimit = state.sobelLimit;
+		//int blockSize = state.blockSize;
+		//int disparity = state.disparity;
+		//int sobelLimit = state.sobelLimit;
 
 		// top left corner of the SAD box
 		int startX = pxX;

@@ -851,7 +851,8 @@ void PushbroomStereo::GetSADBlock( int row_start, int row_end, int blockSize, in
 		{
 			// get the sum of absolute differences for this location
 			// on both images
-			sadArray[ iStep * stopJ + jStep] = m_sadCalculator.GetSADCPP(leftImage.data, rightImage.data, laplacian_left.data, laplacian_right.data, leftImage.step, j, i, state);
+			sadArray[ iStep * stopJ + jStep] = m_sadCalculator.GetSADCPP(leftImage.data, rightImage.data, laplacian_left.data, laplacian_right.data, leftImage.step, j, i, 
+				state.blockSize, state.disparity, state.sobelLimit );
 		}
 	}
 }
