@@ -9,6 +9,7 @@
 #define PUSHBROOM_STEREO_HPP
 
 #include "pushbroom-stereo-def.hpp"
+#include "getSADCUDA.cuh"
 
 class PushbroomStereo {
     private:
@@ -39,6 +40,7 @@ class PushbroomStereo {
 
 		int GetSAD(Mat leftImage, Mat rightImage, Mat laplacianL, Mat laplacianR, int pxX, int pxY, PushbroomStereoState state, int *left_interest = NULL, int *right_interest = NULL, int *raw_sad = NULL);
 
+		GetSadCUDA	m_sadCalculator;
 };
 
 

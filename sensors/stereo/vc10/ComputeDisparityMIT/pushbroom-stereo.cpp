@@ -21,7 +21,6 @@
 #define INVARIANCE_CHECK_HORZ_OFFSET_MIN (-3)
 #define INVARIANCE_CHECK_HORZ_OFFSET_MAX 3
 
-#define NUMERIC_CONST 333 // just a constant that we multiply the score by to make
                           // all the parameters in a nice integer range
 #define	MULTITHREAD_DISABLE		1
 PushbroomStereo::PushbroomStereo() {
@@ -852,7 +851,7 @@ void PushbroomStereo::GetSADBlock( int row_start, int row_end, int blockSize, in
 		{
 			// get the sum of absolute differences for this location
 			// on both images
-			sadArray[ iStep * stopJ + jStep] = GetSAD(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
+			sadArray[ iStep * stopJ + jStep] = m_sadCalculator.GetSADCPP(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
 		}
 	}
 }

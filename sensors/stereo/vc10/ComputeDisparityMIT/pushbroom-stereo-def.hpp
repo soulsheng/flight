@@ -18,6 +18,7 @@
 
 #define NUM_THREADS 1
 //#define NUM_REMAP_THREADS 8
+#define NUMERIC_CONST 333 // just a constant that we multiply the score by to make
 
 using namespace cv;
 using namespace std;
