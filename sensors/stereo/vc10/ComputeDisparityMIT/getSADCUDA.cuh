@@ -7,7 +7,7 @@
 class GetSadCUDA
 {
 public:
-	int GetSADCPP(uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int pxX, int pxY, 
+	int GetSAD_kernel(uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int pxX, int pxY, 
 		int blockSize, int disparity, int sobelLimit )
 	{
 		// init parameters
@@ -77,6 +77,20 @@ public:
 
 		//return sobel;
 		return NUMERIC_CONST*(float)sad/(float)laplacian_value;
+	}
+
+	void runGetSAD( int row_start, int row_end, int startJ, int stopJ, int * sadArray, uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int blockSize, int disparity, int sobelLimit )
+	{
+		for (int i=row_start,iStep = 0; i < row_end; i+=blockSize, iStep++)
+		{
+			for (int j=startJ, jStep = 0; j < stopJ; j+=blockSize, jStep++)
+			{
+				// get the sum of absolute differences for this location
+				// on both images
+				sadArray[ iStep * stopJ + jStep] = GetSAD_kernel(leftImage, rightImage, laplacianL, laplacianR, nstep, j, i, 
+					blockSize, disparity, sobelLimit );
+			}
+		}
 	}
 };
 

@@ -18,8 +18,6 @@ class PushbroomStereo {
 	cv::vector<Point3f> *pointVector3d, cv::vector<Point3i> *pointVector2d, cv::vector<uchar> *pointColors,
 	int row_start,  int row_end, PushbroomStereoState state );
 
-		void GetSADBlock( int row_start, int row_end, int blockSize, int startJ, int stopJ, int * sadArray, Mat leftImage, Mat rightImage, Mat laplacian_left, Mat laplacian_right, PushbroomStereoState state );
-
         void RunRemapping(RemapThreadState *remap_state);
 
         void RunInterestOp(InterestOpState *interest_state);
