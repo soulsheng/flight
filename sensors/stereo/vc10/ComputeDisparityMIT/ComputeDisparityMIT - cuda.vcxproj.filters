@@ -24,6 +24,7 @@
     <ClCompile Include="ComputeDisparityMIT - mp4.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="getSADCUDA.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pushbroom-stereo.hpp">
