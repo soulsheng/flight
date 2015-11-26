@@ -377,15 +377,7 @@ void PushbroomStereo::RunStereoPushbroomStereo( Mat leftImage, Mat rightImage, M
 		sdkResetTimer( &timer );
 		sdkStartTimer( &timer );
 
-        for (int i=row_start,iStep = 0; i < row_end; i+=blockSize, iStep++)
-        {
-            for (int j=startJ, jStep = 0; j < stopJ; j+=blockSize, jStep++)
-            {
-                // get the sum of absolute differences for this location
-                // on both images
-				sadArray[ iStep * stopJ + jStep] = GetSAD(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
-			}
-		}
+		GetSADBlock(row_start, row_end, blockSize, startJ, stopJ, sadArray, leftImage, rightImage, laplacian_left, laplacian_right, state);
 
 		sdkStopTimer( &timer );
 		//printf("RunStereo bottleneck timer: %.2f ms \n", sdkGetTimerValue( &timer) );
@@ -850,4 +842,17 @@ int PushbroomStereo::RoundUp(int numToRound, int multiple)
     if (numToRound < 0)
         return -(abs(numToRound) - remainder);
     return numToRound + multiple - remainder;
+}
+
+void PushbroomStereo::GetSADBlock( int row_start, int row_end, int blockSize, int startJ, int stopJ, int * sadArray, Mat leftImage, Mat rightImage, Mat laplacian_left, Mat laplacian_right, PushbroomStereoState state )
+{
+	for (int i=row_start,iStep = 0; i < row_end; i+=blockSize, iStep++)
+	{
+		for (int j=startJ, jStep = 0; j < stopJ; j+=blockSize, jStep++)
+		{
+			// get the sum of absolute differences for this location
+			// on both images
+			sadArray[ iStep * stopJ + jStep] = GetSAD(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
+		}
+	}
 }
