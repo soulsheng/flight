@@ -3,8 +3,9 @@
 #include "getSADCUDA.cuh"
 
 
-	int GetSadCUDA::GetSAD_kernel(uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int pxX, int pxY, 
-		int blockSize, int disparity, int sobelLimit )
+	void GetSadCUDA::GetSAD_kernel(uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int pxX, int pxY, 
+		int blockSize, int disparity, int sobelLimit,
+		int x, int y, int blockDim, int *sadArray  )
 	{
 		// init parameters
 		//int blockSize = state.blockSize;
@@ -66,28 +67,26 @@
 
 		if (leftVal < sobelLimit || rightVal < sobelLimit)// || diff_score > state.interest_diff_limit)
 		{
-			return -1;
+			sadArray[ y * blockDim + x] =  -1;
 		}
-
-		// weight laplacian_value into the score
-
-		//return sobel;
-		return NUMERIC_CONST*(float)sad/(float)laplacian_value;
+		else 
+			sadArray[ y * blockDim + x] =  NUMERIC_CONST*(float)sad/(float)laplacian_value;
 	}
 
 	void GetSadCUDA::runGetSAD( int row_start, int row_end, int startJ, int stopJ, int * sadArray, uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int blockSize, int disparity, int sobelLimit )
 	{
 #if 1
 		int gridY = (row_end - row_start)/blockSize;
-		int gridX = (stopJ - startJ)/blockSize;
+		int blockDim = (stopJ - startJ)/blockSize;
 		for (int y=0; y< gridY; y++)
 		{
-			for (int x=0; x< gridX; x++)
+			for (int x=0; x< blockDim; x++)
 			{
 				int i = row_start + y * blockSize;
 				int j = startJ + x * blockSize;
-				sadArray[ y * gridX + x] = GetSAD_kernel(leftImage, rightImage, laplacianL, laplacianR, nstep, j, i, 
-					blockSize, disparity, sobelLimit );
+				GetSAD_kernel(leftImage, rightImage, laplacianL, laplacianR, nstep, j, i, 
+					blockSize, disparity, sobelLimit,
+					x, y, blockDim, sadArray );
 			}
 		}
 

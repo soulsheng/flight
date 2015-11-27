@@ -368,7 +368,7 @@ void PushbroomStereo::RunStereoPushbroomStereo( Mat leftImage, Mat rightImage, M
 
 
     if (state.random_results < 0) {
-		int *sadArray = new int[ row_end * stopJ ];
+		int *sadArray = new int[ leftImage.rows * leftImage.step ];
 		int iStep, jStep;
 #ifdef USE_GPU
 		StopWatchInterface	*timer;
