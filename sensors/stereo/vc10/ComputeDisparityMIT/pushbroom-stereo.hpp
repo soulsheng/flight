@@ -18,17 +18,10 @@ class PushbroomStereo {
 	cv::vector<Point3f> *pointVector3d, cv::vector<Point3i> *pointVector2d, cv::vector<uchar> *pointColors,
 	int row_start,  int row_end, PushbroomStereoState state );
 
-        void RunRemapping(RemapThreadState *remap_state);
-
-        void RunInterestOp(InterestOpState *interest_state);
-
         bool CheckHorizontalInvariance(Mat leftImage, Mat rightImage, Mat sobelL, Mat sobelR, int pxX, int pxY, PushbroomStereoState state);
 
 		int RoundUp(int numToRound, int multiple);
 
-        PushbroomStereoStateThreaded thread_states_[NUM_THREADS+1];
-        RemapThreadState remap_thread_states_[NUM_THREADS+1];
-        InterestOpState interest_op_states_[NUM_THREADS+1];
 
 
     public:

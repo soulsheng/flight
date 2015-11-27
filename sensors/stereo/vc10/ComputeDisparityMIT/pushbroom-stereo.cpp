@@ -24,30 +24,7 @@
                           // all the parameters in a nice integer range
 
 PushbroomStereo::PushbroomStereo() {
-    // init worker threads
 
-
-#if 0
-    for (int i = 0; i < NUM_THREADS; i++) {
-        // start all the worker threads
-
-
-        data_mutexes_[i].lock();
-        SetHasNewData(i, false);
-
-        thread_starter[i].thread_number = i;
-        thread_starter[i].data_mutex = &(data_mutexes_[i]);
-        thread_starter[i].cv_new_data = &(cv_new_data_[i]);
-        thread_starter[i].cv_thread_finish = &(cv_thread_finish_[i]);
-        thread_starter[i].parent = this;
-
-        lockers_[i] = unique_lock<mutex>(data_mutexes_[i], std::defer_lock);
-
-        // start the thread
-        pthread_create(&(worker_pool_[i]), NULL, WorkerThread, &(thread_starter[i]));
-
-    }
-#endif
 }
 
 /**
@@ -115,9 +92,9 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 	sdkResetTimer( &timer );
 	sdkStartTimer( &timer );
 
-    cv::vector<Point3f> pointVector3dArray[NUM_THREADS+1];
-    cv::vector<Point3i> pointVector2dArray[NUM_THREADS+1];
-    cv::vector<uchar> pointColorsArray[NUM_THREADS+1];
+    cv::vector<Point3f> pointVector3dArray;
+    cv::vector<Point3i> pointVector2dArray;
+    cv::vector<uchar> pointColorsArray;
 
     //cout << "[main] firing worker threads..." << endl;
 
@@ -141,51 +118,22 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
     int numPoints = 0;
     // compute the required size of our return vector
     // this prevents multiple memory allocations
-    for (int i=0;i<NUM_THREADS;i++)
-    {
-        numPoints += pointVector3dArray[i].size();
-    }
+    numPoints = pointVector3dArray.size();
+    
     pointVector3d->reserve(numPoints);
     pointColors->reserve(numPoints);
 
-    // combine the hit vectors
-    for (int i=0;i<NUM_THREADS;i++)
-    {
-        pointVector3d->insert( pointVector3d->end(), pointVector3dArray[i].begin(), pointVector3dArray[i].end() );
+	pointVector3d->insert( pointVector3d->end(), pointVector3dArray.begin(), pointVector3dArray.end() );
 
-        pointColors->insert( pointColors->end(), pointColorsArray[i].begin(), pointColorsArray[i].end() );
+	pointColors->insert( pointColors->end(), pointColorsArray.begin(), pointColorsArray.end() );
 
-        if (state.show_display)
-        {
-            pointVector2d->insert( pointVector2d->end(), pointVector2dArray[i].begin(), pointVector2dArray[i].end() );
-        }
-    }
-
+	 if (state.show_display)
+	{
+		pointVector2d->insert( pointVector2d->end(), pointVector2dArray.begin(), pointVector2dArray.end() );
+	}
 }
 
-/**
- * Function (for running in a thread) that remaps images
- *
- */
-void PushbroomStereo::RunRemapping(RemapThreadState *remap_state) {
 
-    // remap this part of the image
-
-    remap(remap_state->left_image, remap_state->sub_remapped_left_image, remap_state->submapxL, Mat(), INTER_NEAREST);
-    remap(remap_state->right_image, remap_state->sub_remapped_right_image, remap_state->submapxR, Mat(), INTER_NEAREST);
-
-
-
-}
-
-void PushbroomStereo::RunInterestOp(InterestOpState *interest_state) {
-
-    // apply interest operator
-    Laplacian(interest_state->left_image.rowRange(interest_state->row_start, interest_state->row_end), interest_state->sub_laplacian_left, -1, 3, 1, 0, BORDER_DEFAULT);
-
-    Laplacian(interest_state->right_image.rowRange(interest_state->row_start, interest_state->row_end), interest_state->sub_laplacian_right, -1, 3, 1, 0, BORDER_DEFAULT);
-
-}
 
 /**
  * Function that actually does the work for the PushbroomStereo algorithm.
