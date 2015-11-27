@@ -258,7 +258,7 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 
 		
 	sdkStopTimer( &timer );
-	printf("RunStereo timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+	//printf("RunStereo timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
     int numPoints = 0;
     // compute the required size of our return vector

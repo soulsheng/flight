@@ -75,7 +75,7 @@ int main( )
 			pushbroom_stereo.ProcessImages( matL, matR, &pointVector3d, &pointColors, &pointVector2d, state);
 
 			sdkStopTimer( &timer );
-			//printf("timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+			printf("timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 			if( 20 < pointVector2d.size() ) {
 				cout << nFrameCount << " frame: " << pointVector2d.size() << "points;	" ;
 				if( 0 == nFrameCount % (int)fps )
