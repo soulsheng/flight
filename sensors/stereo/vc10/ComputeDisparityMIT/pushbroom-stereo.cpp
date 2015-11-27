@@ -37,12 +37,9 @@ PushbroomStereo::PushbroomStereo() {
  * @param state set of configuration parameters for the function.
  *      You can change these on each run of the function if you'd like.
  */
-void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImage, cv::vector<Point3f> *pointVector3d, cv::vector<uchar> *pointColors, cv::vector<Point3i> *pointVector2d, PushbroomStereoState state) {
+void PushbroomStereo::ProcessImages(Mat leftImage, Mat rightImage, cv::vector<Point3f> *pointVector3d, cv::vector<uchar> *pointColors, cv::vector<Point3i> *pointVector2d, PushbroomStereoState state) {
 
     //cout << "[main] entering process images" << endl;
-
-    Mat leftImage = _leftImage.getMat();
-    Mat rightImage = _rightImage.getMat();
 
     // make sure that the inputs are of the right type
     CV_Assert(leftImage.type() == CV_8UC1 && rightImage.type() == CV_8UC1);

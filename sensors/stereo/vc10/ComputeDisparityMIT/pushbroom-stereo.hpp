@@ -27,7 +27,7 @@ class PushbroomStereo {
     public:
         PushbroomStereo();
 
-        void ProcessImages(InputArray _leftImage, InputArray _rightImage, cv::vector<Point3f> *pointVector3d, cv::vector<uchar> *pointColors, cv::vector<Point3i> *pointVector2d, PushbroomStereoState state);
+        void ProcessImages(Mat leftImage, Mat rightImage, cv::vector<Point3f> *pointVector3d, cv::vector<uchar> *pointColors, cv::vector<Point3i> *pointVector2d, PushbroomStereoState state);
 
 		int GetSAD(Mat leftImage, Mat rightImage, Mat laplacianL, Mat laplacianR, int pxX, int pxY, PushbroomStereoState state, int *left_interest = NULL, int *right_interest = NULL, int *raw_sad = NULL);
 		
