@@ -145,6 +145,8 @@
 		cudaFree( d_sadArray );
 
 		d_leftImage = NULL;
+
+		cudaDeviceReset();
 	}
 
 	GetSadCUDA::GetSadCUDA()
