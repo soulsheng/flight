@@ -850,3 +850,8 @@ int PushbroomStereo::RoundUp(int numToRound, int multiple)
     return numToRound + multiple - remainder;
 }
 
+void PushbroomStereo::initialize( int width, int height, int nstep )
+{
+	m_sadCalculator.initialize( width, height, nstep );
+}
+

@@ -42,6 +42,9 @@ int main( )
 	IplImage* iplImgL1 = cvCreateImage( size, IPL_DEPTH_8U, 1 );  
 	IplImage* iplImgR1 = cvCreateImage( size, IPL_DEPTH_8U, 1 );  
 
+	matL = iplImgL1;
+	pushbroom_stereo.initialize( matL.cols, matL.rows, matL.step );
+
 	StopWatchInterface	*timer;
 	sdkCreateTimer( &timer );
 

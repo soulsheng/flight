@@ -1,6 +1,7 @@
 
 
 #include "getSADCUDA.cuh"
+#include "cuda_runtime.h"
 
 
 	void GetSadCUDA::GetSAD_kernel(uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int pxX, int pxY, 
@@ -102,4 +103,44 @@
 			}
 		}
 #endif
+	}
+
+	void GetSadCUDA::initialize(int width, int height, int nstep)
+	{
+		nSizeBuffer = nstep * height;
+		cudaMalloc( &d_leftImage, nSizeBuffer );
+		cudaMalloc( &d_rightImage, nSizeBuffer );
+		cudaMalloc( &d_laplacianL, nSizeBuffer );
+		cudaMalloc( &d_laplacianR, nSizeBuffer );
+
+		cudaMalloc( &d_sadArray, nSizeBuffer*sizeof(int) );
+	}
+
+	void GetSadCUDA::release()
+	{
+		if( NULL == d_leftImage)
+			return;
+
+		cudaFree( d_leftImage );
+		cudaFree( d_rightImage );
+		cudaFree( d_laplacianL );
+		cudaFree( d_laplacianR );
+
+		cudaFree( d_sadArray );
+
+		d_leftImage = NULL;
+	}
+
+	GetSadCUDA::GetSadCUDA()
+	{
+		d_leftImage = NULL;
+		d_rightImage = NULL;
+		d_laplacianL = NULL;
+		d_laplacianR = NULL;
+		d_sadArray = NULL;
+	}
+
+	GetSadCUDA::~GetSadCUDA()
+	{
+		release();
 	}
