@@ -22,7 +22,7 @@
 #define INVARIANCE_CHECK_HORZ_OFFSET_MAX 3
 
                           // all the parameters in a nice integer range
-#define	MULTITHREAD_DISABLE		1
+
 PushbroomStereo::PushbroomStereo() {
     // init worker threads
 
@@ -90,43 +90,10 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
     // appropriate spot in the array
     Mat remapped_left(state.mapxL.rows, state.mapxL.cols, leftImage.depth());
     Mat remapped_right(state.mapxR.rows, state.mapxR.cols, rightImage.depth());
-#if MULTITHREAD_DISABLE
+
 		remap( leftImage, remapped_left, state.mapxL, Mat(), INTER_NEAREST);
 		remap( rightImage, remapped_right, state.mapxR, Mat(), INTER_NEAREST);
 
-#else
-
-
-    for (int i = 0; i < NUM_THREADS; i++) {
-
-        int start = rows/NUM_THREADS*i;
-        int end = rows/NUM_THREADS*(i+1);
-
-        remap_thread_states_[i].left_image = leftImage;
-        remap_thread_states_[i].right_image = rightImage;
-
-        // send in a subset of the map
-        remap_thread_states_[i].submapxL = state.mapxL.rowRange(start, end);
-        remap_thread_states_[i].submapxR = state.mapxR.rowRange(start, end);
-
-        // send in subsets of the arrays to be filled in
-        remap_thread_states_[i].sub_remapped_left_image = remapped_left.rowRange(start, end);
-
-        remap_thread_states_[i].sub_remapped_right_image = remapped_right.rowRange(start, end);
-
-        //StartWorkerThread(i, REMAP);
-		RunRemapping( remap_thread_states_ + i );
-
-    }
-    //cout << "[main] all remap threads started" << endl;
-
-
-    // wait for all remapping threads to finish
-    //SyncWorkerThreads();
-
-    //cout << "[main] all remap threads finished" << endl;
-#endif
-	
 	sdkStopTimer( &timer );
 	//printf("remap timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
@@ -136,43 +103,12 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
 
     Mat laplacian_left(remapped_left.rows, remapped_left.cols, remapped_left.depth());
     Mat laplacian_right(remapped_right.rows, remapped_right.cols, remapped_right.depth());
-#if MULTITHREAD_DISABLE
+
 	    // apply interest operator
 		Laplacian( remapped_left, laplacian_left, -1, 3, 1, 0, BORDER_DEFAULT);
 
 		Laplacian( remapped_right, laplacian_right, -1, 3, 1, 0, BORDER_DEFAULT);
-#else
-    for (int i = 0; i < NUM_THREADS; i++) {
 
-        int start = rows/NUM_THREADS*i;
-        int end = rows/NUM_THREADS*(i+1);
-
-        interest_op_states_[i].left_image = remapped_left;
-        interest_op_states_[i].right_image = remapped_right;
-
-        // send in subsets of the arrays to be filled in
-
-        interest_op_states_[i].sub_laplacian_left = laplacian_left.rowRange(start, end);
-        interest_op_states_[i].sub_laplacian_right = laplacian_right.rowRange(start, end);
-
-        interest_op_states_[i].row_start = start;
-        interest_op_states_[i].row_end = end;
-
-
-        //StartWorkerThread(i, INTEREST_OP);
-		RunInterestOp( interest_op_states_ + i );
-
-    }
-
-    //SyncWorkerThreads();
-
-    // now we have fully remapped both images
-    //imshow("Left Block", remapped_right);
-    //imshow("Right Block", laplacian_right);
-
-    //cout << "[main] imshow2 ok" << endl;
-#endif
-	
 	sdkStopTimer( &timer );
 	//printf("laplacian timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
@@ -191,70 +127,12 @@ void PushbroomStereo::ProcessImages(InputArray _leftImage, InputArray _rightImag
         rows = state.lastValidPixelRow;
     }
 
-	
-#if MULTITHREAD_DISABLE
 
     int rows_round = RoundUp(rows, state.blockSize);
 
 	RunStereoPushbroomStereo( remapped_left, remapped_right, laplacian_left, laplacian_right,
 	pointVector3d, pointVector2d, pointColors,
 	0, rows_round - 1, state );
-
-#else
-    // figure out how to split up the work
-    int thread_increment = RoundUp(rows/NUM_THREADS, state.blockSize);
-    int last_thread_num_rows = rows - thread_increment * (NUM_THREADS - 1);
-
-    // make sure the last thread has a number of rows divisible by the block size
-    last_thread_num_rows = last_thread_num_rows - last_thread_num_rows % state.blockSize;
-
-    //printf("thread increment: %d, last thread: %d\n", thread_increment, last_thread_num_rows);
-
-    for (int i=0;i<NUM_THREADS;i++)
-    {
-
-        thread_states_[i].state = state;
-
-        int start = thread_increment * i;
-        int end;
-
-        if (i < NUM_THREADS - 1) {
-            // not the last thread
-            end = thread_increment*(i+1) - 1;
-        } else {
-            // the last thread
-            end = start + last_thread_num_rows - 1;
-        }
-
-        //printf("start: %d, end: %d\n", start, end);
-
-        // send in the whole image because each thread needs
-        // the entire image to do its small remapping job
-        thread_states_[i].remapped_left = remapped_left;
-        thread_states_[i].remapped_right = remapped_right;
-
-        thread_states_[i].laplacian_left = laplacian_left;
-        thread_states_[i].laplacian_right = laplacian_right;
-
-        thread_states_[i].pointVector3d = &pointVector3dArray[i];
-        thread_states_[i].pointVector2d = &pointVector2dArray[i];
-        thread_states_[i].pointColors = &pointColorsArray[i];
-        thread_states_[i].row_start = start;
-        thread_states_[i].row_end = end;
-
-
-
-        // fire the worker thread
-        //StartWorkerThread(i, STEREO);
-		RunStereoPushbroomStereo( thread_states_ + i );
-
-    }
-
-    // wait for all the threads to come back
-    //SyncWorkerThreads();
-
-    //cout << "[main] got all stereo" << endl;
-#endif
 
 		
 	sdkStopTimer( &timer );
