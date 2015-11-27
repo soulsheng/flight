@@ -114,7 +114,7 @@
 					d_sadArray, threadsPerBlock );
 
 		cudaMemcpy( sadArray, d_sadArray, blocksPerGrid*threadsPerBlock*sizeof(int), cudaMemcpyDeviceToHost );
-		
+		//cudaDeviceSynchronize();
 		cudaError_t errorCode = cudaGetLastError();
 		if( cudaSuccess != errorCode )
 			printf("failed to run GetSAD_kernel \n");
