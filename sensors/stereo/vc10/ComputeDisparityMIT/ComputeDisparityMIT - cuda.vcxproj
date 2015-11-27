@@ -88,9 +88,9 @@
     <ClInclude Include="pushbroom-stereo.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="getSADCUDA.cu">
+    <CudaCompile Include="getSADCUDA.cu">
       <FileType>Document</FileType>
-    </ClCompile>
+    </CudaCompile>
     <None Include="getSADCUDA.cuh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

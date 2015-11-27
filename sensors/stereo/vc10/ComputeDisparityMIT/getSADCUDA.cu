@@ -3,15 +3,24 @@
 #include "getSADCUDA.cuh"
 #include "cuda_runtime.h"
 
-
-	void GetSadCUDA::GetSAD_kernel(uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int pxX, int pxY, 
+	__global__
+	void GetSADGPU_kernel(uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int startJ, int row_start, 
 		int blockSize, int disparity, int sobelLimit,
-		int x, int y, int blockDim, int *sadArray  )
+		int *sadArray, int threadsPerBlock  )
 	{
 		// init parameters
 		//int blockSize = state.blockSize;
 		//int disparity = state.disparity;
 		//int sobelLimit = state.sobelLimit;
+
+		int x = threadIdx.x;
+		int y = blockIdx.x;
+
+		if( x >= threadsPerBlock )
+			return;
+
+		int pxX = startJ + x * blockSize;
+		int pxY = row_start + y * blockSize;
 
 		// top left corner of the SAD box
 		int startX = pxX;
@@ -68,15 +77,15 @@
 
 		if (leftVal < sobelLimit || rightVal < sobelLimit)// || diff_score > state.interest_diff_limit)
 		{
-			sadArray[ y * blockDim + x] =  -1;
+			sadArray[ y * threadsPerBlock + x] =  -1;
 		}
 		else 
-			sadArray[ y * blockDim + x] =  NUMERIC_CONST*(float)sad/(float)laplacian_value;
+			sadArray[ y * threadsPerBlock + x] =  NUMERIC_CONST*(float)sad/(float)laplacian_value;
 	}
 
 	void GetSadCUDA::runGetSAD( int row_start, int row_end, int startJ, int stopJ, int * sadArray, uchar* leftImage, uchar* rightImage, uchar* laplacianL, uchar* laplacianR, int nstep, int blockSize, int disparity, int sobelLimit )
 	{
-#if 1
+#if 0
 		int gridY = (row_end - row_start)/blockSize;
 		int blockDim = (stopJ - startJ)/blockSize;
 		for (int y=0; y< gridY; y++)
@@ -92,16 +101,23 @@
 		}
 
 #else
-		for (int i=row_start,iStep = 0; i < row_end; i+=blockSize, iStep++)
-		{
-			for (int j=startJ, jStep = 0; j < stopJ; j+=blockSize, jStep++)
-			{
-				// get the sum of absolute differences for this location
-				// on both images
-				sadArray[ iStep * stopJ + jStep] = GetSAD_kernel(leftImage, rightImage, laplacianL, laplacianR, nstep, j, i, 
-					blockSize, disparity, sobelLimit );
-			}
-		}
+		cudaMemcpy( d_leftImage, leftImage, nSizeBuffer, cudaMemcpyHostToDevice );
+		cudaMemcpy( d_rightImage, rightImage, nSizeBuffer, cudaMemcpyHostToDevice );
+		cudaMemcpy( d_laplacianL, laplacianL, nSizeBuffer, cudaMemcpyHostToDevice );
+		cudaMemcpy( d_laplacianR, laplacianR, nSizeBuffer, cudaMemcpyHostToDevice );
+
+		int blocksPerGrid = (row_end - row_start)/blockSize;
+		int threadsPerBlock = (stopJ - startJ)/blockSize;
+
+		GetSADGPU_kernel<<<blocksPerGrid, threadsPerBlock+10>>> ( d_leftImage, d_rightImage, d_laplacianL, d_laplacianR, nstep, startJ, row_start, 
+					blockSize, disparity, sobelLimit, 
+					d_sadArray, threadsPerBlock );
+
+		cudaMemcpy( sadArray, d_sadArray, blocksPerGrid*threadsPerBlock*sizeof(int), cudaMemcpyDeviceToHost );
+		
+		cudaError_t errorCode = cudaGetLastError();
+		if( cudaSuccess != errorCode )
+			printf("failed to run GetSAD_kernel \n");
 #endif
 	}
 
