@@ -119,3 +119,5 @@ ui/GoForFlight/GoForFlight.layout
 /sensors/stereo/vc10/ComputeDisparityMIT/yml/*.yml
 /sensors/stereo/vc10/ComputeDisparityMIT/yml1/*.yml
 /sensors/stereo/vc10/ComputeDisparityMIT/*.mp4
+/sensors/stereo/vc10/ComputeDisparityMIT/ComputeDisparity
+/sensors/stereo/vc10/ComputeDisparityMIT/*.pdb

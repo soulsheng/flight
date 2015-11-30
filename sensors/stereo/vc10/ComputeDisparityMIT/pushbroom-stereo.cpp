@@ -9,6 +9,9 @@
 //#include <pthread.h>
 #include "helper_timer.h"
 
+#include "opencv2/gpu/gpu.hpp"
+using namespace cv::gpu;
+
 // if USE_SAFTEY_CHECKS is 1, GetSAD will try to make sure
 // that it will do the right thing even if you ask it for pixel
 // values near the edges of images.  Set to 0 for a small speedup.
@@ -20,7 +23,7 @@
 
 #define INVARIANCE_CHECK_HORZ_OFFSET_MIN (-3)
 #define INVARIANCE_CHECK_HORZ_OFFSET_MAX 3
-
+#define USE_GPU
                           // all the parameters in a nice integer range
 
 PushbroomStereo::PushbroomStereo() {
@@ -54,6 +57,46 @@ void PushbroomStereo::ProcessImages(Mat leftImage, Mat rightImage, cv::vector<Po
 	StopWatchInterface	*timer;
 	sdkCreateTimer( &timer );
 
+
+#if 1
+	//GpuMat d_leftImage(leftImage);
+	//GpuMat d_mapxL(state.mapxL);
+    	//GpuMat d_remapped_left;
+	//gpu::remap( d_leftImage, d_remapped_left, d_mapxL, GpuMat(), INTER_NEAREST);
+
+	Mat remapped_left(state.mapxL.rows, state.mapxL.cols, leftImage.depth());
+	//d_remapped_left.download(remapped_left);
+    	remap( leftImage, remapped_left, state.mapxL, Mat(), INTER_NEAREST);
+
+	//GpuMat d_rightImage(rightImage);
+	//GpuMat d_mapxR(state.mapxR);
+    	//GpuMat d_remapped_right;
+	//gpu::remap( d_rightImage, d_remapped_right, d_mapxR, GpuMat(), INTER_NEAREST);
+	Mat remapped_right(state.mapxR.rows, state.mapxR.cols, rightImage.depth());
+	//d_remapped_right.download(remapped_right);
+	remap( rightImage, remapped_right, state.mapxR, Mat(), INTER_NEAREST);
+
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+        GpuMat d_remapped_left(remapped_left);
+	GpuMat d_laplacian_left;
+	gpu::Laplacian( d_remapped_left, d_laplacian_left, -1, 3, 1, 0);
+
+	Mat laplacian_left(remapped_left.rows, remapped_left.cols, remapped_left.depth());
+	d_laplacian_left.download(laplacian_left);
+
+	GpuMat d_remapped_right(remapped_right);
+	GpuMat d_laplacian_right;
+	gpu::Laplacian( d_remapped_right, d_laplacian_right, -1, 3, 1, 0);
+
+
+	Mat laplacian_right(remapped_right.rows, remapped_right.cols, remapped_right.depth());
+	d_laplacian_right.download(laplacian_right);
+	
+	sdkStopTimer( &timer );
+	//printf(" lap time %.2f\n", sdkGetTimerValue( &timer ) );
+
+#else	
 	sdkResetTimer( &timer );
 	sdkStartTimer( &timer );
 
@@ -65,11 +108,11 @@ void PushbroomStereo::ProcessImages(Mat leftImage, Mat rightImage, cv::vector<Po
     Mat remapped_left(state.mapxL.rows, state.mapxL.cols, leftImage.depth());
     Mat remapped_right(state.mapxR.rows, state.mapxR.cols, rightImage.depth());
 
-		remap( leftImage, remapped_left, state.mapxL, Mat(), INTER_NEAREST);
-		remap( rightImage, remapped_right, state.mapxR, Mat(), INTER_NEAREST);
+	remap( leftImage, remapped_left, state.mapxL, Mat(), INTER_NEAREST);
+	remap( rightImage, remapped_right, state.mapxR, Mat(), INTER_NEAREST);
 
 	sdkStopTimer( &timer );
-	//printf("remap timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+	printf("remap timer: %.2f ms \n", sdkGetTimerValue( &timer) );
 
 	
 	sdkResetTimer( &timer );
@@ -79,12 +122,14 @@ void PushbroomStereo::ProcessImages(Mat leftImage, Mat rightImage, cv::vector<Po
     Mat laplacian_right(remapped_right.rows, remapped_right.cols, remapped_right.depth());
 
 	    // apply interest operator
-		Laplacian( remapped_left, laplacian_left, -1, 3, 1, 0, BORDER_DEFAULT);
+	Laplacian( remapped_left, laplacian_left, -1, 3, 1, 0, BORDER_DEFAULT);
 
-		Laplacian( remapped_right, laplacian_right, -1, 3, 1, 0, BORDER_DEFAULT);
+	Laplacian( remapped_right, laplacian_right, -1, 3, 1, 0, BORDER_DEFAULT);
 
 	sdkStopTimer( &timer );
-	//printf("laplacian timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+	printf("laplacian timer: %.2f ms \n", sdkGetTimerValue( &timer) );
+
+#endif
 
 	sdkResetTimer( &timer );
 	sdkStartTimer( &timer );
