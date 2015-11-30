@@ -24,6 +24,8 @@ using namespace cv::gpu;
 #define INVARIANCE_CHECK_HORZ_OFFSET_MIN (-3)
 #define INVARIANCE_CHECK_HORZ_OFFSET_MAX 3
 #define USE_GPU
+// #define USE_GPU_OCV
+
                           // all the parameters in a nice integer range
 
 PushbroomStereo::PushbroomStereo() {
@@ -58,7 +60,7 @@ void PushbroomStereo::ProcessImages(Mat leftImage, Mat rightImage, cv::vector<Po
 	sdkCreateTimer( &timer );
 
 
-#if 1
+#if USE_GPU_OCV
 	//GpuMat d_leftImage(leftImage);
 	//GpuMat d_mapxL(state.mapxL);
     	//GpuMat d_remapped_left;

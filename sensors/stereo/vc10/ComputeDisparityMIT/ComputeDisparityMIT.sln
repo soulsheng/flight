@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComputeDisparityMIT - mp4",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComputeDisparityMIT - cuda", "ComputeDisparityMIT - cuda.vcxproj", "{7B79530F-9AFA-4C58-B39A-1CFDA671B0E0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComputeDisparityMIT-tk1", "ComputeDisparityMIT-tk1.vcxproj", "{80E2F563-6AE0-431A-84F2-359659256735}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,10 @@ Global
 		{7B79530F-9AFA-4C58-B39A-1CFDA671B0E0}.Debug|Win32.Build.0 = Debug|Win32
 		{7B79530F-9AFA-4C58-B39A-1CFDA671B0E0}.Release|Win32.ActiveCfg = Release|Win32
 		{7B79530F-9AFA-4C58-B39A-1CFDA671B0E0}.Release|Win32.Build.0 = Release|Win32
+		{80E2F563-6AE0-431A-84F2-359659256735}.Debug|Win32.ActiveCfg = Debug|Win32
+		{80E2F563-6AE0-431A-84F2-359659256735}.Debug|Win32.Build.0 = Debug|Win32
+		{80E2F563-6AE0-431A-84F2-359659256735}.Release|Win32.ActiveCfg = Release|Win32
+		{80E2F563-6AE0-431A-84F2-359659256735}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
