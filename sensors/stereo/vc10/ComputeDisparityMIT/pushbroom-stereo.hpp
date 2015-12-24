@@ -9,8 +9,11 @@
 #define PUSHBROOM_STEREO_HPP
 
 #include "pushbroom-stereo-def.hpp"
-#include "getSADCUDA.cuh"
 
+#define USE_GPU	 0
+#if USE_GPU
+#include "getSADCUDA.cuh"
+#endif
 class PushbroomStereo {
     private:
         void RunStereoPushbroomStereo(PushbroomStereoStateThreaded *statet);
@@ -33,7 +36,9 @@ class PushbroomStereo {
 		
 		void initialize( int width, int height, int nstep );
 
+#if USE_GPU
 		GetSadCUDA	m_sadCalculator;
+#endif
 };
 
 

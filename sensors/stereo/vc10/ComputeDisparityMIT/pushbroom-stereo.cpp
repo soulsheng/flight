@@ -23,7 +23,7 @@ using namespace cv::gpu;
 
 #define INVARIANCE_CHECK_HORZ_OFFSET_MIN (-3)
 #define INVARIANCE_CHECK_HORZ_OFFSET_MAX 3
-#define USE_GPU
+//#define USE_GPU
 // #define USE_GPU_OCV
 
                           // all the parameters in a nice integer range
@@ -240,7 +240,7 @@ void PushbroomStereo::RunStereoPushbroomStereo( Mat leftImage, Mat rightImage, M
     if (state.random_results < 0) {
 		int *sadArray = new int[ leftImage.rows * leftImage.step ];
 		int iStep, jStep;
-#ifdef USE_GPU
+#if	USE_GPU
 		StopWatchInterface	*timer;
 		sdkCreateTimer( &timer );
 		sdkResetTimer( &timer );
@@ -267,7 +267,7 @@ void PushbroomStereo::RunStereoPushbroomStereo( Mat leftImage, Mat rightImage, M
                 // indicating a hit
 				int i = row_start + y * blockSize;
 				int j = startJ + x * blockSize;
-#ifdef USE_GPU
+#if USE_GPU
 				int sad = sadArray[ y * gridX + x];
 #else
 				int sad= GetSAD(leftImage, rightImage, laplacian_left, laplacian_right, j, i, state);
@@ -722,6 +722,8 @@ int PushbroomStereo::RoundUp(int numToRound, int multiple)
 
 void PushbroomStereo::initialize( int width, int height, int nstep )
 {
+#if USE_GPU
 	m_sadCalculator.initialize( width, height, nstep );
+#endif
 }
 
