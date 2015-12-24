@@ -10,7 +10,7 @@ using namespace cv;
 
 #include "helper_timer.h"
 
-#define	IMAGE_FILE_MP4_L				"2_5f.mp4"
+#define	IMAGE_FILE_MP4_L				"2_5f.mp4" 
 #define	IMAGE_FILE_MP4_R				"2_right_5f.mp4"
 #define	IMAGE_FILE_MP4_OUT		"CollisionAvoidance30s.avi"
 

@@ -29,7 +29,7 @@ bool readCalibrationFiles(CalibParams &params)
 
 	// Load calibration file 
 	FileStorage fs;
-	fs.open("calib_para.yml",FileStorage::READ);
+	fs.open( "calib_para.yml",FileStorage::READ);
 	if (fs.isOpened())
 	{
 		Mat validroi1,validroi2;
